@@ -14,11 +14,11 @@ function radioLine($question, $qnum)
     echo ('<div class="mb-3">
                     <label class="form-label required">' . $question . '</label>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="q' . $qnum . '" id="yesq' . $qnum . '" value="yes" required>
+                        <input class="form-check-input" type="radio" name="q' . $qnum . '" id="yesq' . $qnum . '" value=1 required>
                         <label class="form-check-label" for="yesq' . $qnum . '">Да</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="q' . $qnum . '" id="noq' . $qnum . '" value="no" required>
+                        <input class="form-check-input" type="radio" name="q' . $qnum . '" id="noq' . $qnum . '" value=0 required>
                         <label class="form-check-label" for="noq' . $qnum . '">Нет</label>
                     </div>
                 </div>');
@@ -38,7 +38,7 @@ function radioLine($question, $qnum)
 
 <body>
     <div class="container mt-5">
-        <form action="#" method="POST">
+        <form id="surveyForm" method="POST">
 
             <!-- Section 1 -->
             <div class="survey-section">
@@ -135,6 +135,7 @@ function radioLine($question, $qnum)
         </form>
     </div>
 </body>
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
     integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
     crossorigin="anonymous"></script>

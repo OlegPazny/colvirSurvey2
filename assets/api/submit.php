@@ -1,39 +1,32 @@
 <?php
-// Подключение к базе данных
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "survey_db";
-
-// Создаем соединение
-$conn = new mysqli($servername, $username, $password, $dbname);
+require_once "db_connect.php";
 
 // Проверяем соединение
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+if ($db->connect_error) {
+    die("Connection failed: " . $db->connect_error);
 }
 
 // Проверяем, что данные переданы через POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Собираем данные из формы
-    $q1 = mysqli_real_escape_string($conn, $_POST['q1']); // Пример для select
-    $q3 = mysqli_real_escape_string($conn, $_POST['q3']); // Пример для радиокнопок
-    $q12 = mysqli_real_escape_string($conn, $_POST['q12']); // Пример для шкалы оценки
-
-    // Добавьте сюда все остальные вопросы формы
-
+    $columns=[];
+    for ($i=1; $i<=24; $i++){
+        ${"q$i"} = mysqli_real_escape_string($db, $_POST['q'."$i"]);
+        array_push($columns, "q".$i);
+    }
+    $columns=implode(", ", $columns);
     // Пример запроса для вставки данных
-    $sql = "INSERT INTO survey_results (q1, q3, q12) VALUES ('$q1', '$q3', '$q12')";
+    $sql = "INSERT INTO results (".$columns.") VALUES ('$q1', '$q2', '$q3', '$q4', '$q5', '$q6', '$q7', '$q8', '$q9', '$q10', '$q11', '$q12', '$q13', '$q14', '$q15', '$q16', '$q17', '$q18', '$q19', '$q20', '$q21', '$q22', '$q23', '$q24')";
 
-    if ($conn->query($sql) === TRUE) {
+    if ($db->query($sql) === TRUE) {
         // Если данные успешно сохранены
         echo "Данные успешно сохранены!";
     } else {
         // Если произошла ошибка
-        echo "Ошибка: " . $sql . "<br>" . $conn->error;
+        echo "Ошибка: " . $sql . "<br>" . $db->error;
     }
 
     // Закрываем соединение
-    $conn->close();
+    $db->close();
 }
 ?>
