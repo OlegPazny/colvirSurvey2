@@ -1,0 +1,46 @@
+body {
+    background-color: #f7f7f7;
+}
+
+.survey-section {
+    margin-bottom: 2rem;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.survey-header {
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.survey-description {
+    margin-bottom: 1rem;
+    color: #6c757d;
+}
+
+.form-check {
+    margin-bottom: 1rem;
+}
+
+.matrix-table {
+    width: 100%;
+    text-align: center;
+}
+
+.matrix-table th,
+.matrix-table td {
+    padding: 0.75rem;
+}
+
+.required:after {
+    content: "*";
+    color: red;
+}
+td:first-child{
+    width: 65%;
+    text-align: left;
+}

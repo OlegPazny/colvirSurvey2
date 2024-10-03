@@ -32,56 +32,9 @@ function radioLine($question, $qnum)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="assets/css/styles.css">
     <title>Опрос</title>
 </head>
-<style>
-    body {
-        background-color: #f7f7f7;
-    }
-
-    .survey-section {
-        margin-bottom: 2rem;
-        background-color: #fff;
-        padding: 2rem;
-        border-radius: 10px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .survey-header {
-        margin-bottom: 1.5rem;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #495057;
-    }
-
-    .survey-description {
-        margin-bottom: 1rem;
-        color: #6c757d;
-    }
-
-    .form-check {
-        margin-bottom: 1rem;
-    }
-
-    .matrix-table {
-        width: 100%;
-        text-align: center;
-    }
-
-    .matrix-table th,
-    .matrix-table td {
-        padding: 0.75rem;
-    }
-
-    .required:after {
-        content: "*";
-        color: red;
-    }
-    td:first-child{
-        width: 65%;
-        text-align: left;
-    }
-</style>
 
 <body>
     <div class="container mt-5">
@@ -188,5 +141,5 @@ function radioLine($question, $qnum)
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
-
+<script src="assets/js/script.js"></script>
 </html>
