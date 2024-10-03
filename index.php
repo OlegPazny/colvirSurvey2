@@ -77,6 +77,10 @@ function radioLine($question, $qnum)
         content: "*";
         color: red;
     }
+    td:first-child{
+        width: 65%;
+        text-align: left;
+    }
 </style>
 
 <body>
@@ -171,7 +175,7 @@ function radioLine($question, $qnum)
             <!-- Submit Section -->
             <div class="survey-section">
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">Submit Survey</button>
+                    <button type="submit" class="btn btn-primary">Отправить</button>
                 </div>
             </div>
 
