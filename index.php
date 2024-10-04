@@ -1,4 +1,8 @@
 <?php
+require_once "assets/api/db_connect.php";
+
+$departments=mysqli_query($db, "SELECT * FROM `departments`");
+$departments=mysqli_fetch_all($departments);
 function matrixLine($description, $qnum)
 {
     echo ('<tr>
@@ -47,13 +51,24 @@ function radioLine($question, $qnum)
                 <div class="mb-3">
                     <label for="q1" class="form-label required">В каком подразделении Вы работаете?</label>
                     <select class="form-select" id="q1" name="q1" required>
-                        <option>1</option>
+                        <option selected disabled>Выберите подразделение</option>
+                        <?php
+                            foreach($departments as $department){
+                                echo("<option value='".$department[0]."'>".$department[1]."</option>");
+                            }
+                        ?>
                     </select>
                 </div>
                 <div class="mb-3">
                     <label for="q2" class="form-label">Сколько лет вы работаете в компании?</label>
                     <select class="form-select" id="q2" name="q2">
-                        <option>1</option>
+                        <option selected disabled>Выберите количество лет</option>
+                        <option value="less than 1">До 1 года</option>
+                        <option value="between 1 and 2">От 1 года до 2 лет</option>
+                        <option value="between 2 and 5">От 2 до 5 лет</option>
+                        <option value="between 5 and 10">От 5 до 10 лет</option>
+                        <option value="more than 10">Более 10 лет</option>
+                        <option value="none">Не хочу отвечать на вопрос</option>
                     </select>
                 </div>
             </div>
