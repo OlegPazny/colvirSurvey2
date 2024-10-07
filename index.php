@@ -7,10 +7,10 @@ function matrixLine($description, $qnum)
 {
     echo ('<tr>
                 <td>' . $description . '</td>
-                <td><input type="radio" name="q' . $qnum . '" value="1"></td>
-                <td><input type="radio" name="q' . $qnum . '" value="2"></td>
-                <td><input type="radio" name="q' . $qnum . '" value="3"></td>
-                <td><input type="radio" name="q' . $qnum . '" value="4"></td>
+                <td><input type="radio" name="q' . $qnum . '" value="0.25"></td>
+                <td><input type="radio" name="q' . $qnum . '" value="0.50"></td>
+                <td><input type="radio" name="q' . $qnum . '" value="0.75"></td>
+                <td><input type="radio" name="q' . $qnum . '" value="1.00"></td>
             </tr>');
 }
 function radioLine($question, $qnum)
