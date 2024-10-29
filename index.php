@@ -7,9 +7,9 @@ function matrixLine($description, $qnum)
 {
     echo ('<tr>
                 <td>' . $description . '</td>
-                <td><input type="radio" name="q' . $qnum . '" value="0.25"></td>
+                <td><input type="radio" name="q' . $qnum . '" value="NULL"></td>
+                <td><input type="radio" name="q' . $qnum . '" value="0.00"></td>
                 <td><input type="radio" name="q' . $qnum . '" value="0.50"></td>
-                <td><input type="radio" name="q' . $qnum . '" value="0.75"></td>
                 <td><input type="radio" name="q' . $qnum . '" value="1.00"></td>
             </tr>');
 }
@@ -95,7 +95,8 @@ function radioLine($question, $qnum)
                     <select class="form-select" id="q12" name="q12" required>
                         <?php
                             for($i=0; $i<=10; $i++){
-                                echo("<option value='".$i."'>".$i."</option>");
+                                $value=$i/10;
+                                echo("<option value='".$value."'>".$i."</option>");
                             }
                         ?>
                     </select>
