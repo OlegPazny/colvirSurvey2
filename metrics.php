@@ -366,6 +366,21 @@ $questions = [
     const labels = <?= json_encode(array_keys($curr_avg_arr)) ?>;
     const currentData = <?= json_encode(array_values($curr_avg_arr)) ?>;
     const previousData = <?= json_encode(array_values($prev_avg_arr)) ?>;
+    // Предполагаем, что currentData и previousData имеют одинаковую длину
+    let sortedData = labels.map((label, index) => ({
+        label: label,
+        currentValue: currentData[index],
+        previousValue: previousData[index],
+    }));
+
+    // Сортируем по текущим значениям в порядке убывания
+    sortedData.sort((a, b) => b.currentValue - a.currentValue);
+
+    // Создаем новые массивы для меток и данных
+    const sortedLabels = sortedData.map(item => item.label);
+    const sortedCurrentData = sortedData.map(item => item.currentValue);
+    const sortedPreviousData = sortedData.map(item => item.previousValue);
+
     document.addEventListener("DOMContentLoaded", function() {
         const ctx = document.getElementById('myChart').getContext('2d');
         const myChart = new Chart(ctx, {
@@ -420,10 +435,10 @@ $questions = [
     const myChart = new Chart(ctx2, {
         type: 'bar',
         data: {
-            labels: labels,
+            labels: sortedLabels,
             datasets: [{
                     label: 'Текущий период',
-                    data: currentData,
+                    data: sortedCurrentData,
                     backgroundColor: '#2E5B9B', // Корпоративный синий цвет
                     borderColor: '#2E5B9B',
                     borderWidth: 1,
@@ -431,7 +446,7 @@ $questions = [
                 },
                 {
                     label: 'Предыдущий период',
-                    data: previousData,
+                    data: sortedPreviousData,
                     backgroundColor: '#999B9A', // Серый цвет
                     borderColor: '#999B9A',
                     borderWidth: 1,
