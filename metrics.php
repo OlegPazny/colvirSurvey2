@@ -6,6 +6,31 @@ $data = mysqli_fetch_all($data);
 
 $data_prev = mysqli_query($db, "SELECT * FROM `prev_results`");
 $data_prev = mysqli_fetch_all($data_prev);
+
+$questions = [
+    3 => "Знаю ли я, что от меня ожидается на работе?",
+    4 => "Располагаю ли я доступом к информации, а также необходимыми знаниями внутренних процедур для правильного выполнения моей работы?",
+    5 => "Есть ли у меня на работе возможность ежедневно заниматься тем, что я умею делать лучше всего?",
+    6 => "Получал ли я за последние 30 дней благодарность или одобрение за хорошо выполненную работу?",
+    7 => "Есть ли у меня ощущение, что мой непосредственный руководитель или кто-то другой на работе заботится обо мне как о личности?",
+    8 => "Есть ли у меня на работе человек, который поощряет мой рост (профессиональный и личностный)?",
+    9 => "Есть ли у меня ощущение, что на работе считаются с моим мнением?",
+    10 => "Ощущаю ли я взаимосвязь выполненных мною задач с общими целями компании?",
+    11 => "Считают ли мои коллеги своим долгом выполнять работу качественно?",
+    12 => "Оцените по шкале от 0 до 10, вероятность вашей рекомендации Компании, как достойного места работы (где 0 – это никогда не порекомендую, а 10 – регулярно рекомендую).",
+    13 => "За последние шесть месяцев кто-нибудь на работе беседовал со мной (о моем прогрессе либо о факторах, которые мне мешают в работе), определял зоны моего развития?",
+    14 => "Были ли у меня на работе в течение прошедшего года возможности для учебы и роста",
+    15 => "Я понимаю свои задачи и функции",
+    16 => "Я знаю, что от меня ждет руководство",
+    17 => "Я знаю, по каким критериям оценивается моя работа",
+    18 => "В компании созданы все условия, чтобы я качественно выполнял свою работу",
+    19 => "Если я работаю хорошо и старательно, руководитель положительно отзывается обо мне",
+    20 => "Руководитель ценит мои заслуги, отмечает успехи",
+    21 => "Руководитель и коллеги заинтересованы в том, чтобы я работал лучше",
+    22 => "Ко мне обращаются за советом коллеги и/или руководитель",
+    23 => "Я обучаюсь в процессе работы, узнаю много нового, мне помогают справиться с интересными задачами",
+    24 => "Я понимаю, что моя работа важна для других и доволен, что тружусь в компании"
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -172,16 +197,10 @@ $data_prev = mysqli_fetch_all($data_prev);
             echo ("ЭВ " . $involvement_emo . "<br>");
             echo ("___________<br>");
 
-            // Собираем данные для графика
-            $chartData = [
-                "ОВ текущее" => $involvement_org,
-                "ИВ текущее" => $involvement_int,
-                "ЭВ текущее" => $involvement_emo
-            ];
-
-            $avg_arr = [];
+            $curr_avg_arr = [];
             foreach ($sum_arr as $key => $item) {
-                $avg_arr[$key] = round($item / $count * 100, 2); // сохраняем индекс
+                $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
+                $curr_avg_arr[$questionText] = round($item / $count * 100, 2);
             }
 
             ?>
@@ -313,6 +332,12 @@ $data_prev = mysqli_fetch_all($data_prev);
             echo ("ЭВ " . $involvement_emo_prev . "<br>");
             echo ("___________<br>");
 
+            $prev_avg_arr = [];
+            foreach ($sum_arr as $key => $item) {
+                $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
+                $prev_avg_arr[$questionText] = round($item / $count * 100, 2);
+            }
+
             $chartData = [
                 "current" => [
                     "ОВ" => $involvement_org,
@@ -331,18 +356,23 @@ $data_prev = mysqli_fetch_all($data_prev);
     <div class="graph1">
         <canvas id="myChart" width="200" height="100"></canvas>
     </div>
+    <div class="graph2">
+        <canvas id="myChart2" width="200" height="100"></canvas>
+    </div>
 </body>
 <script>
     // Передаем данные из PHP в JavaScript через JSON
     const chartData = <?php echo json_encode($chartData); ?>;
+    const labels = <?= json_encode(array_keys($curr_avg_arr)) ?>;
+    const currentData = <?= json_encode(array_values($curr_avg_arr)) ?>;
+    const previousData = <?= json_encode(array_values($prev_avg_arr)) ?>;
     document.addEventListener("DOMContentLoaded", function() {
         const ctx = document.getElementById('myChart').getContext('2d');
         const myChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ["ОВ", "ИВ", "ЭВ"], // Метки для каждого критерия
-                datasets: [
-                    {
+                datasets: [{
                         label: 'Предыдущий период',
                         data: Object.values(chartData.previous),
                         backgroundColor: '#2E5B9B', // Цвет для предыдущего периода
@@ -385,6 +415,65 @@ $data_prev = mysqli_fetch_all($data_prev);
             },
             plugins: [ChartDataLabels] // Включаем плагин
         });
+    });
+    const ctx2 = document.getElementById('myChart2').getContext('2d');
+    const myChart = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                    label: 'Текущий период',
+                    data: currentData,
+                    backgroundColor: '#2E5B9B', // Корпоративный синий цвет
+                    borderColor: '#2E5B9B',
+                    borderWidth: 1,
+                    barThickness: 10, // Уменьшаем ширину столбцов
+                },
+                {
+                    label: 'Предыдущий период',
+                    data: previousData,
+                    backgroundColor: '#999B9A', // Серый цвет
+                    borderColor: '#999B9A',
+                    borderWidth: 1,
+                    barThickness: 10, // Уменьшаем ширину столбцов
+                },
+            ],
+        },
+        options: {
+            indexAxis: 'y', // Делаем столбцы горизонтальными
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Показатели (%)',
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Вопросы',
+                    },
+                },
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    enabled: false, // Отключаем подсказки
+                },
+                // Добавляем значения столбцов справа
+                datalabels: {
+                    anchor: 'end',
+                    align: 'end',
+                    formatter: (value) => `${value}%`, // Форматируем отображаемое значение
+                    color: '#000', // Цвет текста
+                },
+            },
+        },
+        plugins: [ChartDataLabels] // Убедитесь, что у вас подключен плагин datalabels
     });
 </script>
 
