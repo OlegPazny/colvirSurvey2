@@ -7,6 +7,9 @@ $data = mysqli_fetch_all($data);
 $data_prev = mysqli_query($db, "SELECT * FROM `prev_results`");
 $data_prev = mysqli_fetch_all($data_prev);
 
+$data_prev_prev = mysqli_query($db, "SELECT * FROM `prev_prev_results`");
+$data_prev_prev = mysqli_fetch_all($data_prev_prev);
+
 $questions = [
     3 => "Знаю ли я, что от меня ожидается на работе?",
     4 => "Располагаю ли я доступом к информации, а также необходимыми знаниями внутренних процедур для правильного выполнения моей работы?",
@@ -31,7 +34,7 @@ $questions = [
     23 => "Я обучаюсь в процессе работы, узнаю много нового, мне помогают справиться с интересными задачами",
     24 => "Я понимаю, что моя работа важна для других и доволен, что тружусь в компании"
 ];
-function generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions)
+function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions)
 {
     echo '<h1>Дашборд ' . $departmentNameRu . '</h1>
     <div class="container">
@@ -361,6 +364,159 @@ function generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, 
         $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
         ${$departmentNameEn . "_prev_avg_arr"}[$questionText] = round($item / $count * 100, 2);
     }
+    echo '</div>';
+    echo '</div>
+    <div class="third">
+        <h3>Предпредыдущий период</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Подразделение</th>
+                    <th>Сколько лет</th>
+                    <th>ОВ</th>
+                    <th>ИВ</th>
+                    <th>ЭВ</th>
+                    <th>ЭВ</th>
+                    <th>ЭВ</th>
+                    <th>ИВ</th>
+                    <th>ЭВ</th>
+                    <th>ОВ</th>
+                    <th>ОВ</th>
+                    <th>ЭВ</th>
+                    <th>ИВ</th>
+                    <th>ИВ</th>
+                    <th>ОВ</th>
+                    <th>ОВ</th>
+                    <th>ОВ</th>
+                    <th>ИВ</th>
+                    <th>ЭВ</th>
+                    <th>ЭВ</th>
+                    <th>ОВ</th>
+                    <th>ИВ</th>
+                    <th>ИВ</th>
+                    <th>ОВ</th>
+                </tr>
+            </thead>
+            <tbody>';
+    $sum_arr = []; //общее
+    $ov_arr = []; //организационное ОВ
+    $iv_arr = []; //интеллектуальное ИВ
+    $ev_arr = []; //эмоциональное ЭВ
+    $count = 0;
+    foreach ($data_prev_prev as $item) {
+        if (count($departmentIds) > 0) {
+            // Проверяем, принадлежит ли $item[1] массиву $departmentIds
+            if (in_array($item[1], $departmentIds)) {
+                echo "<tr>";
+                for ($i = 0; $i <= 24; $i++) {
+                    echo ("<td>" . $item[$i] . "</td>");
+                }
+                for ($i = 3; $i <= 24; $i++) {
+                    $sum_arr[$i] += $item[$i];
+                    if ($i == 3 || $i == 10 || $i == 11 || $i == 15 || $i == 16 || $i == 17 || $i == 21 || $i == 24) {
+                        $ov_arr[$i] += $item[$i];
+                    }
+                    if ($i == 4 || $i == 8 || $i == 13 || $i == 14 || $i == 18 || $i == 22 || $i == 23) {
+                        $iv_arr[$i] += $item[$i];
+                    }
+                    if ($i == 5 || $i == 6 || $i == 7 || $i == 9 || $i == 12 || $i == 19 || $i == 20) {
+                        $ev_arr[$i] += $item[$i];
+                    }
+                }
+                $count++;
+            }
+        } else {
+            echo "<tr>";
+            for ($i = 0; $i <= 24; $i++) {
+                echo ("<td>" . $item[$i] . "</td>");
+            }
+            for ($i = 3; $i <= 24; $i++) {
+                $sum_arr[$i] += $item[$i];
+                if ($i == 3 || $i == 10 || $i == 11 || $i == 15 || $i == 16 || $i == 17 || $i == 21 || $i == 24) {
+                    $ov_arr[$i] += $item[$i];
+                }
+                if ($i == 4 || $i == 8 || $i == 13 || $i == 14 || $i == 18 || $i == 22 || $i == 23) {
+                    $iv_arr[$i] += $item[$i];
+                }
+                if ($i == 5 || $i == 6 || $i == 7 || $i == 9 || $i == 12 || $i == 19 || $i == 20) {
+                    $ev_arr[$i] += $item[$i];
+                }
+            }
+            $count++;
+        }
+        echo "</tr>";
+    }
+    echo '<tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>';
+
+    foreach ($sum_arr as $item) {
+        echo ("<td>" . round($item / $count, 5) . "</td>");
+    }
+
+    echo '</tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>';
+
+    foreach ($sum_arr as $item) {
+        echo ("<td>" . round($item / $count * 100, 2) . "</td>");
+    }
+
+    echo '</tr>
+            </tbody>
+        </table>';
+    $people_amount = $count; //КР количество респондентов
+    echo ("КР " . $people_amount . "<br>");
+
+
+    //вовлеченность общая ВО=СБ*100/(МБ*КР)
+    $questions_count_total = count($sum_arr); //МБ максимальный балл (в строке)
+    echo ("МБ " . $questions_count_total . "<br>");
+    $total_score = array_sum($sum_arr); //СБ сумма баллов
+    echo ("СБ " . $total_score . "<br>");
+    $max_score = $questions_count_total * $count;
+    $involved = round(100 * $total_score / $max_score, 3);
+    $involvement_total = round($total_score * 100 / $questions_count_total / $people_amount, 2);
+    echo ("ВО " . $involvement_total . "<br>");
+    echo ("___________<br>");
+
+    //вовлеченность организационная ОВ=СБ*100/(МБ/КР)
+    $total_score_ov = array_sum($ov_arr); //СБ сумма баллов
+    echo ("СБ " . $total_score_ov . "<br>");
+    $questions_count_ov = count($ov_arr); //МБ максимальный балл (в строке)
+    echo ("МБ " . $questions_count_ov . "<br>");
+    $involvement_org_prev_prev = round($total_score_ov * 100 / $questions_count_ov / $people_amount, 2);
+    echo ("ОВ " . $involvement_org_prev_prev . "<br>");
+    echo ("___________<br>");
+
+    //вовлеченность интеллектуальная ИВ=СБ*100/(МБ*КР)
+    $total_score_iv = array_sum($iv_arr); //СБ сумма баллов
+    echo ("СБ " . $total_score_iv . "<br>");
+    $questions_count_iv = count($iv_arr); //МБ максимальный балл (в строке)
+    echo ("МБ " . $questions_count_iv . "<br>");
+    $involvement_int_prev_prev = round($total_score_iv * 100 / $questions_count_iv / $people_amount, 2);
+    echo ("ИВ " . $involvement_int_prev_prev . "<br>");
+    echo ("___________<br>");
+
+
+    //вовлеченность эмоциональная ЭВ=СБ*100/(МБ*КР)
+    $total_score_ev = array_sum($ev_arr); //СБ сумма баллов
+    echo ("СБ " . $total_score_iv . "<br>");
+    $questions_count_ev = count($ev_arr); //МБ максимальный балл (в строке)
+    echo ("МБ " . $questions_count_ev . "<br>");
+    $involvement_emo_prev_prev = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);
+    echo ("ЭВ " . $involvement_emo_prev_prev . "<br>");
+    echo ("___________<br>");
+
+    ${$departmentNameEn . "_prev_prev_avg_arr"} = [];
+    foreach ($sum_arr as $key => $item) {
+        $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
+        ${$departmentNameEn . "_prev_prev_avg_arr"}[$questionText] = round($item / $count * 100, 2);
+    }
     ${$departmentNameEn . "chartData"};
     ${$departmentNameEn . "chartData"} = [
         "current" => [
@@ -372,10 +528,14 @@ function generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, 
             "ОВ" => $involvement_org_prev,
             "ИВ" => $involvement_int_prev,
             "ЭВ" => $involvement_emo_prev
+        ],
+        "prev_previous" => [
+            "ОВ" => $involvement_org_prev_prev,
+            "ИВ" => $involvement_int_prev_prev,
+            "ЭВ" => $involvement_emo_prev_prev
         ]
     ];
     echo '</div>
-    </div>
     <div class="graph' . $departmentNameEn . '1">
         <canvas id="chart' . $departmentNameEn . '1" width="100" height="50"></canvas>
     </div>
@@ -389,11 +549,13 @@ function generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, 
             const ' . $departmentNameEn . 'chartData = ' . json_encode(${$departmentNameEn . "chartData"}) . ';
             const ' . $departmentNameEn . 'currentData = ' . json_encode(array_values(${$departmentNameEn . "_curr_avg_arr"})) . ';
             const ' . $departmentNameEn . 'previousData = ' . json_encode(array_values(${$departmentNameEn . "_prev_avg_arr"})) . ';
+            const ' . $departmentNameEn . 'prevPreviousData = ' . json_encode(array_values(${$departmentNameEn . "_prev_prev_avg_arr"})) . ';
             // Предполагаем, что currentData и previousData имеют одинаковую длину
             let ' . $departmentNameEn . 'sortedData = ' . $departmentNameEn . 'labels.map((label, index) => ({
                 label: label,
                 ' . $departmentNameEn . 'currentValue: ' . $departmentNameEn . 'currentData[index],
                 ' . $departmentNameEn . 'previousValue: ' . $departmentNameEn . 'previousData[index],
+                ' . $departmentNameEn . 'prevPreviousValue: ' . $departmentNameEn . 'prevPreviousData[index],
             }));
 
             // Сортируем по текущим значениям в порядке убывания
@@ -403,13 +565,22 @@ function generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, 
             const ' . $departmentNameEn . 'sortedLabels = ' . $departmentNameEn . 'sortedData.map(item => item.label);
             const ' . $departmentNameEn . 'sortedCurrentData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'currentValue);
             const ' . $departmentNameEn . 'sortedPreviousData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'previousValue);
+            const ' . $departmentNameEn . 'sortedPrevPreviousData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'prevPreviousValue);
 
             const ctx' . $departmentNameEn . '1 = document.getElementById("chart' . $departmentNameEn . '1").getContext("2d");
             const chart' . $departmentNameEn . '1 = new Chart(ctx' . $departmentNameEn . '1, {
                 type: "bar",
                 data: {
                     labels: ["ОВ", "ИВ", "ЭВ"], // Метки для каждого критерия
-                    datasets: [{
+                    datasets: [
+                        {
+                            label: "Предпредыдущий период",
+                            data: Object.values(' . $departmentNameEn . 'chartData.prev_previous),
+                            backgroundColor: "#2E5B0B", // Цвет для предпредыдущего периода
+                            borderColor: "#2E5B9B",
+                            borderWidth: 1
+                        },
+                        {
                             label: "Предыдущий период",
                             data: Object.values(' . $departmentNameEn . 'chartData.previous),
                             backgroundColor: "#2E5B9B", // Цвет для предыдущего периода
@@ -472,6 +643,14 @@ function generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, 
                             label: "Предыдущий период",
                             data: ' . $departmentNameEn . 'sortedPreviousData,
                             backgroundColor: "#2E5B9B", // Серый цвет
+                            borderColor: "#2E5B9B",
+                            borderWidth: 1,
+                            barThickness: 10, // Уменьшаем ширину столбцов
+                        },
+                        {
+                            label: "Предпредыдущий период",
+                            data: ' . $departmentNameEn . 'sortedPrevPreviousData,
+                            backgroundColor: "#2E5B0B", // Серый цвет
                             borderColor: "#2E5B9B",
                             borderWidth: 1,
                             barThickness: 10, // Уменьшаем ширину столбцов
@@ -558,32 +737,32 @@ function generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, 
     $departmentIds = [];
     $departmentNameRu = "Общий";
     $departmentNameEn = "all";
-    generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
 
     $departmentIds = [12, 13, 14];
     $departmentNameRu = "PMO";
     $departmentNameEn = "PMO";
-    generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
 
     $departmentIds = [15];
     $departmentNameRu = "Служба персонала";
     $departmentNameEn = "HR";
-    generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
 
     $departmentIds = [16];
     $departmentNameRu = "Служба бизнес-процессов";
     $departmentNameEn = "SBP";
-    generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
 
     $departmentIds = [2];
     $departmentNameRu = "Технический департамент";
     $departmentNameEn = "TecDep";
-    generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
 
     $departmentIds = [11];
     $departmentNameRu = "Департамент бизнес-анализа";
     $departmentNameEn = "BusAn";
-    generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
     ?>
 </body>
 <script>
