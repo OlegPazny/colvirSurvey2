@@ -33,18 +33,6 @@ $questions = [
 ];
 function generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions)
 {
-    global ${$departmentNameEn . "chartData"}, ${$departmentNameEn . "_curr_avg_arr"}, ${$departmentNameEn . "_prev_avg_arr"};
-
-    // Инициализация массивов, если они еще не были инициализированы
-    if (!isset(${$departmentNameEn . "chartData"})) {
-        ${$departmentNameEn . "chartData"} = [];
-    }
-    if (!isset(${$departmentNameEn . "_curr_avg_arr"})) {
-        ${$departmentNameEn . "_curr_avg_arr"} = [];
-    }
-    if (!isset(${$departmentNameEn . "_prev_avg_arr"})) {
-        ${$departmentNameEn . "_prev_avg_arr"} = [];
-    }
     echo '<h1>Дашборд ' . $departmentNameRu . '</h1>
     <div class="container">
         <div class="first">
@@ -580,6 +568,21 @@ function generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, 
     $departmentIds = [15];
     $departmentNameRu = "Служба персонала";
     $departmentNameEn = "HR";
+    generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+
+    $departmentIds = [16];
+    $departmentNameRu = "Служба бизнес-процессов";
+    $departmentNameEn = "SBP";
+    generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+
+    $departmentIds = [2];
+    $departmentNameRu = "Технический департамент";
+    $departmentNameEn = "TecDep";
+    generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+
+    $departmentIds = [11];
+    $departmentNameRu = "Департамент бизнес-анализа";
+    $departmentNameEn = "BusAn";
     generateDashData($data, $data_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
     ?>
 </body>
