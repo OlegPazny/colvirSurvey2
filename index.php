@@ -1,8 +1,8 @@
 <?php
 require_once "assets/api/db_connect.php";
 
-$departments=mysqli_query($db, "SELECT * FROM `departments`");
-$departments=mysqli_fetch_all($departments);
+$departments = mysqli_query($db, "SELECT * FROM `departments`");
+$departments = mysqli_fetch_all($departments);
 function matrixLine($description, $qnum)
 {
     echo ('<tr>
@@ -36,7 +36,7 @@ function radioLine($question, $qnum)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-        <link rel="stylesheet" type="text/css" href="assets/css/styles.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/styles.css">
     <title>Опрос</title>
 </head>
 
@@ -53,9 +53,9 @@ function radioLine($question, $qnum)
                     <select class="form-select" id="q1" name="q1" required>
                         <option selected disabled>Выберите подразделение</option>
                         <?php
-                            foreach($departments as $department){
-                                echo("<option value='".$department[0]."'>".$department[1]."</option>");
-                            }
+                        foreach ($departments as $department) {
+                            echo ("<option value='" . $department[0] . "'>" . $department[1] . "</option>");
+                        }
                         ?>
                     </select>
                 </div>
@@ -78,15 +78,15 @@ function radioLine($question, $qnum)
                 <div class="survey-header">Блок №1</div>
                 <div class="survey-description">Просим Вас ответить на вопросы опросника «Да» или «Нет».</div>
                 <?php
-                    radioLine("Знаю ли я, что от меня ожидается на работе?", "3");
-                    radioLine("Располагаю ли я доступом к информации, а также необходимыми знаниями внутренних процедур для правильного выполнения моей работы?", "4");
-                    radioLine("Есть ли у меня на работе возможность ежедневно заниматься тем, что я умею делать лучше всего?", "5");
-                    radioLine("Получал ли я за последние 30 дней благодарность или одобрение за хорошо выполненную работу?", "6");
-                    radioLine("Есть ли у меня ощущение, что мой непосредственный руководитель или кто-то другой на работе заботится обо мне как о личности?", "7");
-                    radioLine("Есть ли у меня на работе человек, который поощряет мой рост (профессиональный и личностный)?", "8");
-                    radioLine("Есть ли у меня ощущение, что на работе считаются с моим мнением?", "9");
-                    radioLine("Ощущаю ли я взаимосвязь выполненных мною задач с общими целями компании?", "10");
-                    radioLine("Считают ли мои коллеги своим долгом выполнять работу качественно?", "11");
+                radioLine("Знаю ли я, что от меня ожидается на работе?", "3");
+                radioLine("Располагаю ли я доступом к информации, а также необходимыми знаниями внутренних процедур для правильного выполнения моей работы?", "4");
+                radioLine("Есть ли у меня на работе возможность ежедневно заниматься тем, что я умею делать лучше всего?", "5");
+                radioLine("Получал ли я за последние 30 дней благодарность или одобрение за хорошо выполненную работу?", "6");
+                radioLine("Есть ли у меня ощущение, что мой непосредственный руководитель или кто-то другой на работе заботится обо мне как о личности?", "7");
+                radioLine("Есть ли у меня на работе человек, который поощряет мой рост (профессиональный и личностный)?", "8");
+                radioLine("Есть ли у меня ощущение, что на работе считаются с моим мнением?", "9");
+                radioLine("Ощущаю ли я взаимосвязь выполненных мною задач с общими целями компании?", "10");
+                radioLine("Считают ли мои коллеги своим долгом выполнять работу качественно?", "11");
                 ?>
                 <div class="mb-3">
                     <label for="q1" class="form-label required">Оцените по шкале от 0 до 10, вероятность вашей
@@ -94,16 +94,16 @@ function radioLine($question, $qnum)
                         регулярно рекомендую):</label>
                     <select class="form-select" id="q12" name="q12" required>
                         <?php
-                            for($i=0; $i<=10; $i++){
-                                $value=$i/10;
-                                echo("<option value='".$value."'>".$i."</option>");
-                            }
+                        for ($i = 0; $i <= 10; $i++) {
+                            $value = $i / 10;
+                            echo ("<option value='" . $value . "'>" . $i . "</option>");
+                        }
                         ?>
                     </select>
                 </div>
                 <?php
-                    radioLine("За последние шесть месяцев кто-нибудь на работе беседовал со мной (о моем прогрессе либо о факторах, которые мне мешают в работе), определял зоны моего развития?", "13");
-                    radioLine("Были ли у меня на работе в течение прошедшего года возможности для учебы и роста", "14");
+                radioLine("За последние шесть месяцев кто-нибудь на работе беседовал со мной (о моем прогрессе либо о факторах, которые мне мешают в работе), определял зоны моего развития?", "13");
+                radioLine("Были ли у меня на работе в течение прошедшего года возможности для учебы и роста", "14");
                 ?>
             </div>
             <div class="survey-section">
@@ -159,4 +159,5 @@ function radioLine($question, $qnum)
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
 <script src="assets/js/script.js"></script>
+
 </html>

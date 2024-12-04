@@ -10,6 +10,9 @@ $data_prev = mysqli_fetch_all($data_prev);
 $data_prev_prev = mysqli_query($db, "SELECT * FROM `prev_prev_results`");
 $data_prev_prev = mysqli_fetch_all($data_prev_prev);
 
+$employees = mysqli_query($db, "SELECT * FROM `employees`");
+$employees = mysqli_fetch_all($employees);
+
 $questions = [
     3 => "Знаю ли я, что от меня ожидается на работе?",
     4 => "Располагаю ли я доступом к информации, а также необходимыми знаниями внутренних процедур для правильного выполнения моей работы?",
@@ -34,7 +37,7 @@ $questions = [
     23 => "Я обучаюсь в процессе работы, узнаю много нового, мне помогают справиться с интересными задачами",
     24 => "Я понимаю, что моя работа важна для других и доволен, что тружусь в компании"
 ];
-function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions)
+function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees)
 {
     echo '<h1>Дашборд ' . $departmentNameRu . '</h1>
     <div class="container">
@@ -158,9 +161,31 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     echo '</tr>
                 </tbody>
             </table>';
+    // Подсчёт общего количества сотрудников и участников
+    $totalEmployees = 0;
+    $participants = $count; // Количество респондентов уже подсчитано выше
+
+    if($departmentIds==[]){
+        foreach ($employees as $employee) {
+                $totalEmployees++;
+        }
+    }else{
+        foreach ($employees as $employee) {
+            if (in_array($employee[1], $departmentIds)) {
+                $totalEmployees++;
+            }
+        }
+    }
+
+
+    $participationRate = $totalEmployees > 0 ? round(($participants / $totalEmployees) * 100, 2) : 0;
+
+    // Вывод результатов
+    echo "<p>Всего сотрудников в департаменте: $totalEmployees</p>";
+    echo "<p>Приняли участие в опросе: $participants</p>";
+    echo "<p>Процент участия: $participationRate%</p>";
     $people_amount = $count; //КР количество респондентов
     echo ("КР " . $people_amount . "<br>");
-
 
     //вовлеченность общая ВО=СБ*100/(МБ*КР)
     $questions_count_total = count($sum_arr); //МБ максимальный балл (в строке)
@@ -327,8 +352,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     echo ("СБ " . $total_score . "<br>");
     $max_score = $questions_count_total * $count;
     $involved = round(100 * $total_score / $max_score, 3);
-    $involvement_total = round($total_score * 100 / $questions_count_total / $people_amount, 2);
-    echo ("ВО " . $involvement_total . "<br>");
+    $involvement_total_prev = round($total_score * 100 / $questions_count_total / $people_amount, 2);
+    echo ("ВО " . $involvement_total_prev . "<br>");
     echo ("___________<br>");
 
     //вовлеченность организационная ОВ=СБ*100/(МБ/КР)
@@ -364,6 +389,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
         ${$departmentNameEn . "_prev_avg_arr"}[$questionText] = round($item / $count * 100, 2);
     }
+    $eNPS_prev = $promouter_percent - $critics_percent;
     echo '</div>';
     echo '</div>
     <div class="third">
@@ -512,6 +538,23 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     echo ("ЭВ " . $involvement_emo_prev_prev . "<br>");
     echo ("___________<br>");
 
+
+    echo "<div class='square'>
+        <u><h3>Вовлеченность по компании</h3></u>
+        <h1>".$involvement_total."%/".$involvement_total_prev."%</h1>
+    </div>";
+    echo "<div class='square'>
+        <u><h3>Вовлеченность ".$departmentNameRu."</h3></u>
+        <h1>".$involvement_total."%/".$involvement_total_prev."%</h1>
+    </div>";
+    echo "<div class='square'>
+        <u><h3>Участники по компании (кол-во/процент)</h3></u>
+        <h1>".$totalEmployees."/".$participationRate."%</h1>
+    </div>";
+    echo "<div class='square'>
+        <u><h3>eNPS</h3></u>
+        <h1>".$eNPS."%/".$eNPS_prev."%</h1>
+    </div>";
     ${$departmentNameEn . "_prev_prev_avg_arr"} = [];
     foreach ($sum_arr as $key => $item) {
         $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
@@ -730,6 +773,18 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         flex-direction: row;
         justify-content: space-around;
     }
+    .square{
+        border: 3px solid #2E5B9B;
+        display: flex;
+        flex-direction: column;
+        width: fit-content;
+        padding:15px;
+        align-items: center;
+    }
+    .square *{
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        color: #2E5B9B;
+    }
 </style>
 
 <body>
@@ -737,32 +792,57 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $departmentIds = [];
     $departmentNameRu = "Общий";
     $departmentNameEn = "all";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
 
     $departmentIds = [12, 13, 14];
     $departmentNameRu = "PMO";
     $departmentNameEn = "PMO";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+
+    $departmentIds = [2, 3, 4, 5, 6, 7];
+    $departmentNameRu = "Производственный департамент";
+    $departmentNameEn = "PrDep";
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+
+    $departmentIds = [8, 9, 10];
+    $departmentNameRu = "Департамент развития бизнеса и продуктов";
+    $departmentNameEn = "BusProdDep";
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
 
     $departmentIds = [15];
     $departmentNameRu = "Служба персонала";
     $departmentNameEn = "HR";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
 
     $departmentIds = [16];
     $departmentNameRu = "Служба бизнес-процессов";
     $departmentNameEn = "SBP";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
 
     $departmentIds = [2];
     $departmentNameRu = "Технический департамент";
     $departmentNameEn = "TecDep";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
 
     $departmentIds = [11];
     $departmentNameRu = "Департамент бизнес-анализа";
-    $departmentNameEn = "BusAn";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions);
+    $departmentNameEn = "DepBusAn";
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+
+    $departmentIds = [17];
+    $departmentNameRu = "Бэк-офис";
+    $departmentNameEn = "Back";
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+
+    $departmentIds = [18];
+    $departmentNameRu = "Руководитель департамента/службы";
+    $departmentNameEn = "supervisor";
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+
+    $departmentIds = [1];
+    $departmentNameRu = "Департамент инноваций";
+    $departmentNameEn = "DepInn";
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
     ?>
 </body>
 <script>
