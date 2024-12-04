@@ -82,40 +82,224 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $promouters = 0; //промоутеры
     $critics = 0; //критики
     $count = 0;
+
+    $total_promouters = 0; //промоутеры
+    $total_critics = 0; //критики
+    $total_sum_arr = []; // Для подсчёта по всей компании
+    $total_count = 0; // Количество всех участников по компании
     foreach ($data as $item) {
-        if (count($departmentIds) > 0) {
-            // Проверяем, принадлежит ли $item[1] массиву $departmentIds
-            if (in_array($item[1], $departmentIds)) {
-                echo "<tr>";
-                for ($i = 0; $i <= 24; $i++) {
-                    echo "<td>" . $item[$i] . "</td>";
+        $isDepartment = count($departmentIds) > 0 && in_array($item[1], $departmentIds);
+    
+        echo "<tr>";
+        for ($i = 0; $i <= 24; $i++) {
+            echo "<td>" . $item[$i] . "</td>";
+        }
+    
+        // Всегда собираем данные для всей компании
+        for ($i = 3; $i <= 24; $i++) {
+            $total_sum_arr[$i] += $item[$i];
+        }
+        if ($item[12] >= 0.9) {
+            $total_promouters++;
+        } elseif ($item[12] <= 0.6) {
+            $total_critics++;
+        }
+        $total_count++;
+    
+        // Считаем только для департамента, если он указан
+        if ($isDepartment || empty($departmentIds)) {
+            for ($i = 3; $i <= 24; $i++) {
+                $sum_arr[$i] += $item[$i];
+                if ($i == 3 || $i == 10 || $i == 11 || $i == 15 || $i == 16 || $i == 17 || $i == 21 || $i == 24) {
+                    $ov_arr[$i] += $item[$i];
                 }
-                for ($i = 3; $i <= 24; $i++) {
-                    $sum_arr[$i] += $item[$i];
-                    if ($i == 3 || $i == 10 || $i == 11 || $i == 15 || $i == 16 || $i == 17 || $i == 21 || $i == 24) {
-                        $ov_arr[$i] += $item[$i];
-                    }
-                    if ($i == 4 || $i == 8 || $i == 13 || $i == 14 || $i == 18 || $i == 22 || $i == 23) {
-                        $iv_arr[$i] += $item[$i];
-                    }
-                    if ($i == 5 || $i == 6 || $i == 7 || $i == 9 || $i == 12 || $i == 19 || $i == 20) {
-                        $ev_arr[$i] += $item[$i];
-                        if ($i == 12) {
-                            if ($item[$i] >= 0.9 && $item[$i] <= 1) {
-                                $promouters++;
-                            } elseif ($item[$i] >= 0 && $item[$i] <= 0.6) {
-                                $critics++;
-                            }
+                if ($i == 4 || $i == 8 || $i == 13 || $i == 14 || $i == 18 || $i == 22 || $i == 23) {
+                    $iv_arr[$i] += $item[$i];
+                }
+                if ($i == 5 || $i == 6 || $i == 7 || $i == 9 || $i == 12 || $i == 19 || $i == 20) {
+                    $ev_arr[$i] += $item[$i];
+                    if ($i == 12) {
+                        if ($item[$i] >= 0.9 && $item[$i] <= 1) {
+                            $promouters++;
+                        } elseif ($item[$i] >= 0 && $item[$i] <= 0.6) {
+                            $critics++;
                         }
                     }
                 }
-                $count++;
             }
-        } else {
-            echo "<tr>";
-            for ($i = 0; $i <= 24; $i++) {
-                echo "<td>" . $item[$i] . "</td>";
-            }
+            $count++;
+        }
+        echo "</tr>";
+    }    
+    echo '<tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>';
+
+    foreach ($sum_arr as $item) {
+        echo ("<td>" . round($item / $count, 5) . "</td>");
+    }
+
+    echo '</tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>';
+
+    foreach ($sum_arr as $item) {
+        echo ("<td>" . round($item / $count * 100, 2) . "</td>");
+    }
+
+    echo '</tr>
+                </tbody>
+            </table>';
+    // Подсчёт общего количества сотрудников и участников
+    //для департамента
+    $totalEmployees = 0;
+    $participants = $count; // Количество респондентов уже подсчитано выше
+    //для компании
+    $totalEmployeesCompany = 0;
+    $participantsCompany = $total_count; // Количество респондентов уже подсчитано выше
+
+
+    foreach ($employees as $employee) {
+        $totalEmployeesCompany++;
+    }
+
+    foreach ($employees as $employee) {
+        if (in_array($employee[1], $departmentIds)) {
+            $totalEmployees++;
+        }
+    }
+
+
+    $participationRateCompany = $totalEmployeesCompany > 0 ? round(($participantsCompany / $totalEmployeesCompany) * 100, 2) : 0;
+    $participationRate = $totalEmployees > 0 ? round(($participants / $totalEmployees) * 100, 2) : 0;
+
+    // Вывод результатов
+    // echo "<p>Всего сотрудников в департаменте: $totalEmployees</p>";
+    // echo "<p>Приняли участие в опросе: $participants</p>";
+    // echo "<p>Процент участия: $participationRate%</p>";
+    $people_amount = $count; //КР количество респондентов
+    echo ("КР " . $people_amount . "<br>");
+    //вовлеченность по всей компании
+    $questions_count_total_company = count($total_sum_arr);
+    $total_score_company = array_sum($total_sum_arr);
+    $involvement_total_company = $total_count > 0 ? round($total_score_company * 100 / $questions_count_total_company / $total_count, 2) : 0;
+    //вовлеченность общая ВО=СБ*100/(МБ*КР)
+    $questions_count_total = count($sum_arr); //МБ максимальный балл (в строке)
+    echo ("МБ " . $questions_count_total . "<br>");
+    $total_score = array_sum($sum_arr); //СБ сумма баллов
+    echo ("СБ " . $total_score . "<br>");
+    $max_score = $questions_count_total * $count;
+    $involved = round(100 * $total_score / $max_score, 3);
+    $involvement_total = round($total_score * 100 / $questions_count_total / $people_amount, 2);
+    echo ("ВО " . $involvement_total . "<br>");
+    echo ("___________<br>");
+
+    //вовлеченность организационная ОВ=СБ*100/(МБ/КР)
+    $total_score_ov = array_sum($ov_arr); //СБ сумма баллов
+    echo ("СБ " . $total_score_ov . "<br>");
+    $questions_count_ov = count($ov_arr); //МБ максимальный балл (в строке)
+    echo ("МБ " . $questions_count_ov . "<br>");
+    $involvement_org = round($total_score_ov * 100 / $questions_count_ov / $people_amount, 2);
+    echo ("ОВ " . $involvement_org . "<br>");
+    echo ("___________<br>");
+
+    //вовлеченность интеллектуальная ИВ=СБ*100/(МБ*КР)
+    $total_score_iv = array_sum($iv_arr); //СБ сумма баллов
+    echo ("СБ " . $total_score_iv . "<br>");
+    $questions_count_iv = count($iv_arr); //МБ максимальный балл (в строке)
+    echo ("МБ " . $questions_count_iv . "<br>");
+    $involvement_int = round($total_score_iv * 100 / $questions_count_iv / $people_amount, 2);
+    echo ("ИВ " . $involvement_int . "<br>");
+    echo ("___________<br>");
+
+
+    //вовлеченность эмоциональная ЭВ=СБ*100/(МБ*КР)
+    $total_score_ev = array_sum($ev_arr); //СБ сумма баллов
+    echo ("СБ " . $total_score_iv . "<br>");
+    $questions_count_ev = count($ev_arr); //МБ максимальный балл (в строке)
+    echo ("МБ " . $questions_count_ev . "<br>");
+    $involvement_emo = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);
+    echo ("ЭВ " . $involvement_emo . "<br>");
+    echo ("<br>");
+
+    ${$departmentNameEn . "_curr_avg_arr"} = [];
+    foreach ($sum_arr as $key => $item) {
+        $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
+        ${$departmentNameEn . "_curr_avg_arr"}[$questionText] = round($item / $count * 100, 2);
+    }
+
+
+    //eNPS
+    $promouter_percent = round($promouters / $people_amount * 100, 2);
+    $critics_percent = round($critics / $people_amount * 100, 2);
+    $eNPS = $promouter_percent - $critics_percent;
+    $eNPSCompany = $total_count > 0 ? round((($total_promouters - $total_critics) / $total_count) * 100, 2) : 0;
+    echo '</div>
+        <div class="second">
+            <h3>Предыдущий период</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>Подразделение</th>
+                        <th>Сколько лет</th>
+                        <th>ОВ</th>
+                        <th>ИВ</th>
+                        <th>ЭВ</th>
+                        <th>ЭВ</th>
+                        <th>ЭВ</th>
+                        <th>ИВ</th>
+                        <th>ЭВ</th>
+                        <th>ОВ</th>
+                        <th>ОВ</th>
+                        <th>ЭВ</th>
+                        <th>ИВ</th>
+                        <th>ИВ</th>
+                        <th>ОВ</th>
+                        <th>ОВ</th>
+                        <th>ОВ</th>
+                        <th>ИВ</th>
+                        <th>ЭВ</th>
+                        <th>ЭВ</th>
+                        <th>ОВ</th>
+                        <th>ИВ</th>
+                        <th>ИВ</th>
+                        <th>ОВ</th>
+                    </tr>
+                </thead>
+                <tbody>';
+    $sum_arr = []; //общее
+    $ov_arr = []; //организационное ОВ
+    $iv_arr = []; //интеллектуальное ИВ
+    $ev_arr = []; //эмоциональное ЭВ
+    $count = 0;
+
+    $total_sum_arr_prev = []; // Для подсчёта по всей компании
+    $total_count_prev = 0; // Количество всех участников по компании
+    foreach ($data_prev as $item) {
+        $isDepartment = count($departmentIds) > 0 && in_array($item[1], $departmentIds);
+    
+        echo "<tr>";
+        for ($i = 0; $i <= 24; $i++) {
+            echo "<td>" . $item[$i] . "</td>";
+        }
+    
+        // Всегда собираем данные для всей компании
+        for ($i = 3; $i <= 24; $i++) {
+            $total_sum_arr_prev[$i] += $item[$i];
+        }
+        if ($item[12] >= 0.9) {
+            $total_promouters++;
+        } elseif ($item[12] <= 0.6) {
+            $total_critics++;
+        }
+        $total_count_prev++;
+    
+        // Считаем только для департамента, если он указан
+        if ($isDepartment || empty($departmentIds)) {
             for ($i = 3; $i <= 24; $i++) {
                 $sum_arr[$i] += $item[$i];
                 if ($i == 3 || $i == 10 || $i == 11 || $i == 15 || $i == 16 || $i == 17 || $i == 21 || $i == 24) {
@@ -161,190 +345,12 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     echo '</tr>
                 </tbody>
             </table>';
-    // Подсчёт общего количества сотрудников и участников
-    $totalEmployees = 0;
-    $participants = $count; // Количество респондентов уже подсчитано выше
-
-    if($departmentIds==[]){
-        foreach ($employees as $employee) {
-                $totalEmployees++;
-        }
-    }else{
-        foreach ($employees as $employee) {
-            if (in_array($employee[1], $departmentIds)) {
-                $totalEmployees++;
-            }
-        }
-    }
-
-
-    $participationRate = $totalEmployees > 0 ? round(($participants / $totalEmployees) * 100, 2) : 0;
-
-    // Вывод результатов
-    echo "<p>Всего сотрудников в департаменте: $totalEmployees</p>";
-    echo "<p>Приняли участие в опросе: $participants</p>";
-    echo "<p>Процент участия: $participationRate%</p>";
     $people_amount = $count; //КР количество респондентов
     echo ("КР " . $people_amount . "<br>");
 
-    //вовлеченность общая ВО=СБ*100/(МБ*КР)
-    $questions_count_total = count($sum_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_total . "<br>");
-    $total_score = array_sum($sum_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score . "<br>");
-    $max_score = $questions_count_total * $count;
-    $involved = round(100 * $total_score / $max_score, 3);
-    $involvement_total = round($total_score * 100 / $questions_count_total / $people_amount, 2);
-    echo ("ВО " . $involvement_total . "<br>");
-    echo ("___________<br>");
-
-    //вовлеченность организационная ОВ=СБ*100/(МБ/КР)
-    $total_score_ov = array_sum($ov_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_ov . "<br>");
-    $questions_count_ov = count($ov_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_ov . "<br>");
-    $involvement_org = round($total_score_ov * 100 / $questions_count_ov / $people_amount, 2);
-    echo ("ОВ " . $involvement_org . "<br>");
-    echo ("___________<br>");
-
-    //вовлеченность интеллектуальная ИВ=СБ*100/(МБ*КР)
-    $total_score_iv = array_sum($iv_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_iv . "<br>");
-    $questions_count_iv = count($iv_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_iv . "<br>");
-    $involvement_int = round($total_score_iv * 100 / $questions_count_iv / $people_amount, 2);
-    echo ("ИВ " . $involvement_int . "<br>");
-    echo ("___________<br>");
-
-
-    //вовлеченность эмоциональная ЭВ=СБ*100/(МБ*КР)
-    $total_score_ev = array_sum($ev_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_iv . "<br>");
-    $questions_count_ev = count($ev_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_ev . "<br>");
-    $involvement_emo = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);
-    echo ("ЭВ " . $involvement_emo . "<br>");
-    echo ("___________<br>");
-
-    ${$departmentNameEn . "_curr_avg_arr"} = [];
-    foreach ($sum_arr as $key => $item) {
-        $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
-        ${$departmentNameEn . "_curr_avg_arr"}[$questionText] = round($item / $count * 100, 2);
-    }
-
-
-    //eNPS
-    $promouter_percent = round($promouters / $people_amount * 100, 2);
-    $critics_percent = round($critics / $people_amount * 100, 2);
-    $eNPS = $promouter_percent - $critics_percent;
-    echo '</div>
-        <div class="second">
-            <h3>Предыдущий период</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>id</th>
-                        <th>Подразделение</th>
-                        <th>Сколько лет</th>
-                        <th>ОВ</th>
-                        <th>ИВ</th>
-                        <th>ЭВ</th>
-                        <th>ЭВ</th>
-                        <th>ЭВ</th>
-                        <th>ИВ</th>
-                        <th>ЭВ</th>
-                        <th>ОВ</th>
-                        <th>ОВ</th>
-                        <th>ЭВ</th>
-                        <th>ИВ</th>
-                        <th>ИВ</th>
-                        <th>ОВ</th>
-                        <th>ОВ</th>
-                        <th>ОВ</th>
-                        <th>ИВ</th>
-                        <th>ЭВ</th>
-                        <th>ЭВ</th>
-                        <th>ОВ</th>
-                        <th>ИВ</th>
-                        <th>ИВ</th>
-                        <th>ОВ</th>
-                    </tr>
-                </thead>
-                <tbody>';
-    $sum_arr = []; //общее
-    $ov_arr = []; //организационное ОВ
-    $iv_arr = []; //интеллектуальное ИВ
-    $ev_arr = []; //эмоциональное ЭВ
-    $count = 0;
-    foreach ($data_prev as $item) {
-        if (count($departmentIds) > 0) {
-            // Проверяем, принадлежит ли $item[1] массиву $departmentIds
-            if (in_array($item[1], $departmentIds)) {
-                echo "<tr>";
-                for ($i = 0; $i <= 24; $i++) {
-                    echo ("<td>" . $item[$i] . "</td>");
-                }
-                for ($i = 3; $i <= 24; $i++) {
-                    $sum_arr[$i] += $item[$i];
-                    if ($i == 3 || $i == 10 || $i == 11 || $i == 15 || $i == 16 || $i == 17 || $i == 21 || $i == 24) {
-                        $ov_arr[$i] += $item[$i];
-                    }
-                    if ($i == 4 || $i == 8 || $i == 13 || $i == 14 || $i == 18 || $i == 22 || $i == 23) {
-                        $iv_arr[$i] += $item[$i];
-                    }
-                    if ($i == 5 || $i == 6 || $i == 7 || $i == 9 || $i == 12 || $i == 19 || $i == 20) {
-                        $ev_arr[$i] += $item[$i];
-                    }
-                }
-                $count++;
-            }
-        } else {
-            echo "<tr>";
-            for ($i = 0; $i <= 24; $i++) {
-                echo ("<td>" . $item[$i] . "</td>");
-            }
-            for ($i = 3; $i <= 24; $i++) {
-                $sum_arr[$i] += $item[$i];
-                if ($i == 3 || $i == 10 || $i == 11 || $i == 15 || $i == 16 || $i == 17 || $i == 21 || $i == 24) {
-                    $ov_arr[$i] += $item[$i];
-                }
-                if ($i == 4 || $i == 8 || $i == 13 || $i == 14 || $i == 18 || $i == 22 || $i == 23) {
-                    $iv_arr[$i] += $item[$i];
-                }
-                if ($i == 5 || $i == 6 || $i == 7 || $i == 9 || $i == 12 || $i == 19 || $i == 20) {
-                    $ev_arr[$i] += $item[$i];
-                }
-            }
-            $count++;
-        }
-        echo "</tr>";
-    }
-    echo '<tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>';
-
-    foreach ($sum_arr as $item) {
-        echo ("<td>" . round($item / $count, 5) . "</td>");
-    }
-
-    echo '</tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>';
-
-    foreach ($sum_arr as $item) {
-        echo ("<td>" . round($item / $count * 100, 2) . "</td>");
-    }
-
-    echo '</tr>
-                </tbody>
-            </table>';
-    $people_amount = $count; //КР количество респондентов
-    echo ("КР " . $people_amount . "<br>");
-
-
+    $questions_count_total_company_prev = count($total_sum_arr_prev);
+    $total_score_company_prev = array_sum($total_sum_arr_prev);
+    $involvement_total_company_prev = $total_count_prev > 0 ? round($total_score_company_prev * 100 / $questions_count_total_company_prev / $total_count_prev, 2) : 0;
     //вовлеченность общая ВО=СБ*100/(МБ*КР)
     $questions_count_total = count($sum_arr); //МБ максимальный балл (в строке)
     echo ("МБ " . $questions_count_total . "<br>");
@@ -382,7 +388,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     echo ("МБ " . $questions_count_ev . "<br>");
     $involvement_emo_prev = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);
     echo ("ЭВ " . $involvement_emo_prev . "<br>");
-    echo ("___________<br>");
+    echo ("<br>");
 
     ${$departmentNameEn . "_prev_avg_arr"} = [];
     foreach ($sum_arr as $key => $item) {
@@ -391,7 +397,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     }
     $eNPS_prev = $promouter_percent - $critics_percent;
     echo '</div>';
-    echo '</div>
+    echo '
     <div class="third">
         <h3>Предпредыдущий период</h3>
         <table>
@@ -536,25 +542,31 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     echo ("МБ " . $questions_count_ev . "<br>");
     $involvement_emo_prev_prev = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);
     echo ("ЭВ " . $involvement_emo_prev_prev . "<br>");
-    echo ("___________<br>");
+    echo ("<br>");
 
 
-    echo "<div class='square'>
-        <u><h3>Вовлеченность по компании</h3></u>
-        <h1>".$involvement_total."%/".$involvement_total_prev."%</h1>
+    echo "</div></div><div class='square-block'><div class='square'>
+        <u><h3>Вовлеченность по компании (тек./прош.)</h3></u>
+        <h1>" . $involvement_total_company . "%/" . $involvement_total_company_prev . "%</h1>
     </div>";
     echo "<div class='square'>
-        <u><h3>Вовлеченность ".$departmentNameRu."</h3></u>
-        <h1>".$involvement_total."%/".$involvement_total_prev."%</h1>
+        <u><h3>Вовлеченность " . $departmentNameRu . "  (тек./прош.)</h3></u>
+        <h1>" . $involvement_total . "%/" . $involvement_total_prev . "%</h1>
     </div>";
     echo "<div class='square'>
         <u><h3>Участники по компании (кол-во/процент)</h3></u>
-        <h1>".$totalEmployees."/".$participationRate."%</h1>
+        <h1>" . $totalEmployeesCompany . "/" . $participationRateCompany . "%</h1>
     </div>";
+    if(count($departmentIds)>0){
+        echo "<div class='square'>
+            <u><h3>Участники по департаменту (кол-во/процент)</h3></u>
+            <h1>" . $totalEmployees . "/" . $participationRate . "%</h1>
+        </div>";
+    }
     echo "<div class='square'>
-        <u><h3>eNPS</h3></u>
-        <h1>".$eNPS."%/".$eNPS_prev."%</h1>
-    </div>";
+        <u><h3>eNPS общ./eNPS " . $departmentNameRu . "</h3></u>
+        <h1>" . $eNPSCompany . "%/" . $eNPS . "%</h1>
+    </div></div>";
     ${$departmentNameEn . "_prev_prev_avg_arr"} = [];
     foreach ($sum_arr as $key => $item) {
         $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
@@ -773,15 +785,23 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         flex-direction: row;
         justify-content: space-around;
     }
-    .square{
+
+    .square-block {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .square {
+        margin-right: 10px;
         border: 3px solid #2E5B9B;
         display: flex;
         flex-direction: column;
         width: fit-content;
-        padding:15px;
+        padding: 15px;
         align-items: center;
     }
-    .square *{
+
+    .square * {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         color: #2E5B9B;
     }
