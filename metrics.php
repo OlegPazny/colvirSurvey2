@@ -44,7 +44,7 @@ function roundToNearestFive($number)
 function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees)
 {
     echo '<h1>Дашборд ' . $departmentNameRu . '</h1>
-    <div class="container"><div class="first"><h3>Текущий период</h3>';
+    <div class="container"><div class="first">';
     $sum_arr = []; //общее
     $ov_arr = []; //организационное ОВ
     $iv_arr = []; //интеллектуальное ИВ
@@ -126,45 +126,45 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $participationRateCompany = $totalEmployeesCompany > 0 ? round(($participantsCompany / $totalEmployeesCompany) * 100, 2) : 0;
     $participationRate = $totalEmployees > 0 ? round(($participants / $totalEmployees) * 100, 2) : 0;
     $people_amount = $count; //КР количество респондентов
-    echo ("КР " . $people_amount . "<br>");
+    //echo ("КР " . $people_amount . "<br>");
     //вовлеченность по всей компании
     $questions_count_total_company = count($total_sum_arr);
     $total_score_company = array_sum($total_sum_arr);
     $involvement_total_company = $total_count > 0 ? round($total_score_company * 100 / $questions_count_total_company / $total_count, 2) : 0;
     //вовлеченность общая ВО=СБ*100/(МБ*КР)
     $questions_count_total = count($sum_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_total . "<br>");
+    //echo ("МБ " . $questions_count_total . "<br>");
     $total_score = array_sum($sum_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score . "<br>");
+    //echo ("СБ " . $total_score . "<br>");
     $max_score = $questions_count_total * $count;
     $involved = round(100 * $total_score / $max_score, 3);
     $involvement_total = round($total_score * 100 / $questions_count_total / $people_amount, 2);
-    echo ("ВО " . $involvement_total . "<br>");
-    echo ("___________<br>");
+    //echo ("ВО " . $involvement_total . "<br>");
+    //echo ("___________<br>");
     //вовлеченность организационная ОВ=СБ*100/(МБ/КР)
     $total_score_ov = array_sum($ov_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_ov . "<br>");
+    //echo ("СБ " . $total_score_ov . "<br>");
     $questions_count_ov = count($ov_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_ov . "<br>");
+    //echo ("МБ " . $questions_count_ov . "<br>");
     $involvement_org = round($total_score_ov * 100 / $questions_count_ov / $people_amount, 2);
-    echo ("ОВ " . $involvement_org . "<br>");
-    echo ("___________<br>");
+    //echo ("ОВ " . $involvement_org . "<br>");
+    //echo ("___________<br>");
     //вовлеченность интеллектуальная ИВ=СБ*100/(МБ*КР)
     $total_score_iv = array_sum($iv_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_iv . "<br>");
+    //echo ("СБ " . $total_score_iv . "<br>");
     $questions_count_iv = count($iv_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_iv . "<br>");
+    //echo ("МБ " . $questions_count_iv . "<br>");
     $involvement_int = round($total_score_iv * 100 / $questions_count_iv / $people_amount, 2);
-    echo ("ИВ " . $involvement_int . "<br>");
-    echo ("___________<br>");
+    //echo ("ИВ " . $involvement_int . "<br>");
+    //echo ("___________<br>");
     //вовлеченность эмоциональная ЭВ=СБ*100/(МБ*КР)
     $total_score_ev = array_sum($ev_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_iv . "<br>");
+    //echo ("СБ " . $total_score_iv . "<br>");
     $questions_count_ev = count($ev_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_ev . "<br>");
+    //echo ("МБ " . $questions_count_ev . "<br>");
     $involvement_emo = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);
-    echo ("ЭВ " . $involvement_emo . "<br>");
-    echo ("<br>");
+    //echo ("ЭВ " . $involvement_emo . "<br>");
+    //echo ("<br>");
     ${$departmentNameEn . "_curr_avg_arr"} = [];
     foreach ($sum_arr as $key => $item) {
         $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
@@ -175,7 +175,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $critics_percent = round($critics / $people_amount * 100, 2);
     $eNPS = $promouter_percent - $critics_percent;
     $eNPSCompany = $total_count > 0 ? round((($total_promouters - $total_critics) / $total_count) * 100, 2) : 0;
-    echo '</div><div class="second"><h3>Предыдущий период</h3>';
+    //echo '</div><div class="second"><h3>Предыдущий период</h3>';
     $sum_arr = []; //общее
     $ov_arr = []; //организационное ОВ
     $iv_arr = []; //интеллектуальное ИВ
@@ -237,51 +237,51 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         }
     }
     $people_amount = $count; //КР количество респондентов
-    echo ("КР " . $people_amount . "<br>");
+    //echo ("КР " . $people_amount . "<br>");
     $questions_count_total_company_prev = count($total_sum_arr_prev);
     $total_score_company_prev = array_sum($total_sum_arr_prev);
     $involvement_total_company_prev = $total_count_prev > 0 ? round($total_score_company_prev * 100 / $questions_count_total_company_prev / $total_count_prev, 2) : 0;
     //вовлеченность общая ВО=СБ*100/(МБ*КР)
     $questions_count_total = count($sum_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_total . "<br>");
+    //echo ("МБ " . $questions_count_total . "<br>");
     $total_score = array_sum($sum_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score . "<br>");
+    //echo ("СБ " . $total_score . "<br>");
     $max_score = $questions_count_total * $count;
     $involved = round(100 * $total_score / $max_score, 3);
     $involvement_total_prev = round($total_score * 100 / $questions_count_total / $people_amount, 2);
-    echo ("ВО " . $involvement_total_prev . "<br>");
-    echo ("___________<br>");
+    //echo ("ВО " . $involvement_total_prev . "<br>");
+    //echo ("___________<br>");
     //вовлеченность организационная ОВ=СБ*100/(МБ/КР)
     $total_score_ov = array_sum($ov_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_ov . "<br>");
+    //echo ("СБ " . $total_score_ov . "<br>");
     $questions_count_ov = count($ov_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_ov . "<br>");
+    //echo ("МБ " . $questions_count_ov . "<br>");
     $involvement_org_prev = round($total_score_ov * 100 / $questions_count_ov / $people_amount, 2);
-    echo ("ОВ " . $involvement_org_prev . "<br>");
-    echo ("___________<br>");
+    //echo ("ОВ " . $involvement_org_prev . "<br>");
+    //echo ("___________<br>");
     //вовлеченность интеллектуальная ИВ=СБ*100/(МБ*КР)
     $total_score_iv = array_sum($iv_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_iv . "<br>");
+    //echo ("СБ " . $total_score_iv . "<br>");
     $questions_count_iv = count($iv_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_iv . "<br>");
+    //echo ("МБ " . $questions_count_iv . "<br>");
     $involvement_int_prev = round($total_score_iv * 100 / $questions_count_iv / $people_amount, 2);
-    echo ("ИВ " . $involvement_int_prev . "<br>");
-    echo ("___________<br>");
+    //echo ("ИВ " . $involvement_int_prev . "<br>");
+    //echo ("___________<br>");
     //вовлеченность эмоциональная ЭВ=СБ*100/(МБ*КР)
     $total_score_ev = array_sum($ev_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_iv . "<br>");
+    //echo ("СБ " . $total_score_iv . "<br>");
     $questions_count_ev = count($ev_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_ev . "<br>");
+    //echo ("МБ " . $questions_count_ev . "<br>");
     $involvement_emo_prev = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);
-    echo ("ЭВ " . $involvement_emo_prev . "<br>");
-    echo ("<br>");
+    //echo ("ЭВ " . $involvement_emo_prev . "<br>");
+    //echo ("<br>");
     ${$departmentNameEn . "_prev_avg_arr"} = [];
     foreach ($sum_arr as $key => $item) {
         $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
         ${$departmentNameEn . "_prev_avg_arr"}[$questionText] = round($item / $count * 100, 2);
     }
     $eNPS_prev = $promouter_percent - $critics_percent;
-    echo '</div><div class="third"><h3>Предпредыдущий период</h3>';
+    //echo '</div><div class="third"><h3>Предпредыдущий период</h3>';
     $sum_arr = []; //общее
     $ov_arr = []; //организационное ОВ
     $iv_arr = []; //интеллектуальное ИВ
@@ -322,41 +322,41 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         }
     }
     $people_amount = $count; //КР количество респондентов
-    echo ("КР " . $people_amount . "<br>");
+    //echo ("КР " . $people_amount . "<br>");
     //вовлеченность общая ВО=СБ*100/(МБ*КР)
     $questions_count_total = count($sum_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_total . "<br>");
+    //echo ("МБ " . $questions_count_total . "<br>");
     $total_score = array_sum($sum_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score . "<br>");
+    //echo ("СБ " . $total_score . "<br>");
     $max_score = $questions_count_total * $count;
     $involved = round(100 * $total_score / $max_score, 3);
     $involvement_total = round($total_score * 100 / $questions_count_total / $people_amount, 2);
-    echo ("ВО " . $involvement_total . "<br>");
-    echo ("___________<br>");
+    //echo ("ВО " . $involvement_total . "<br>");
+    //echo ("___________<br>");
     //вовлеченность организационная ОВ=СБ*100/(МБ/КР)
     $total_score_ov = array_sum($ov_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_ov . "<br>");
+    //echo ("СБ " . $total_score_ov . "<br>");
     $questions_count_ov = count($ov_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_ov . "<br>");
+    //echo ("МБ " . $questions_count_ov . "<br>");
     $involvement_org_prev_prev = round($total_score_ov * 100 / $questions_count_ov / $people_amount, 2);
-    echo ("ОВ " . $involvement_org_prev_prev . "<br>");
-    echo ("___________<br>");
+    //echo ("ОВ " . $involvement_org_prev_prev . "<br>");
+    //echo ("___________<br>");
     //вовлеченность интеллектуальная ИВ=СБ*100/(МБ*КР)
     $total_score_iv = array_sum($iv_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_iv . "<br>");
+    //echo ("СБ " . $total_score_iv . "<br>");
     $questions_count_iv = count($iv_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_iv . "<br>");
+    //echo ("МБ " . $questions_count_iv . "<br>");
     $involvement_int_prev_prev = round($total_score_iv * 100 / $questions_count_iv / $people_amount, 2);
-    echo ("ИВ " . $involvement_int_prev_prev . "<br>");
-    echo ("___________<br>");
+    //echo ("ИВ " . $involvement_int_prev_prev . "<br>");
+    //echo ("___________<br>");
     //вовлеченность эмоциональная ЭВ=СБ*100/(МБ*КР)
     $total_score_ev = array_sum($ev_arr); //СБ сумма баллов
-    echo ("СБ " . $total_score_iv . "<br>");
+    //echo ("СБ " . $total_score_iv . "<br>");
     $questions_count_ev = count($ev_arr); //МБ максимальный балл (в строке)
-    echo ("МБ " . $questions_count_ev . "<br>");
+    //echo ("МБ " . $questions_count_ev . "<br>");
     $involvement_emo_prev_prev = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);
-    echo ("ЭВ " . $involvement_emo_prev_prev . "<br>");
-    echo ("<br>");
+    // echo ("ЭВ " . $involvement_emo_prev_prev . "<br>");
+    // echo ("<br>");
     // Вычисление разницы положительных ответов
     foreach ($questions as $questionId => $questionText) {
         $currentRate = $currentPositiveRates[$questionId] ?? 0;
