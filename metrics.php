@@ -379,10 +379,10 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             $filteredLabels[] = $label;
         }
     }
-    
+
     // Переиндексация массива после фильтрации
     $differences = array_values($differences);
-    
+
     echo "</div></div><div class='square-block'><div class='square'>
         <u><h3>Вовлеченность по компании (тек./прош.)</h3></u>
         <h1>" . $involvement_total_company . "%/" . $involvement_total_company_prev . "%</h1>
@@ -402,11 +402,11 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         </div>";
     }
     if (count($departmentIds) > 0) {
-    echo "<div class='square'>
+        echo "<div class='square'>
         <u><h3>eNPS общ./eNPS " . $departmentNameRu . "</h3></u>
         <h1>" . $eNPSCompany . "%/" . $eNPS . "%</h1>
     </div></div>";
-    }else{
+    } else {
         echo "<div class='square'>
         <u><h3>eNPS тек./eNPS пред.</h3></u>
         <h1>" . $eNPSCompany . "%/" . $eNPSCompany_prev . "%</h1>
@@ -441,10 +441,13 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     </div>
     <div class="graph' . $departmentNameEn . '2">
         <canvas id="chart' . $departmentNameEn . '2" width="100" height="50"></canvas>
-    </div>
-    <div class="graph' . $departmentNameEn . '3">
-        <canvas id="chart' . $departmentNameEn . '3" width="100" height="50"></canvas>
     </div>';
+    if (count($departmentIds) > 0) {
+        echo '<div class="graph' . $departmentNameEn . '3">
+            <canvas id="chart' . $departmentNameEn . '3" width="100" height="50"></canvas>
+        </div>';
+    }
+
     echo '
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -596,79 +599,81 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                     },
                 },
                 plugins: [ChartDataLabels] // Убедитесь, что у вас подключен плагин datalabels
-            });
-
-            const ctx' . $departmentNameEn . '3 = document.getElementById("chart' . $departmentNameEn . '3").getContext("2d");
-            const labels = ' . json_encode($filteredLabels) . ';
-            const differences = ' . json_encode($filteredDifferences) . ';
-            function generateDistinctColors(numColors) {
-                const colors = [];
-                const step = 360 / numColors; // Угол в цветовом круге между соседними цветами
-                for (let i = 0; i < numColors; i++) {
-                    const hue = (i * step) % 360; // Вычисляем оттенок
-                    colors.push(`hsl(${hue}, 50%, 50%)`); // Цвет в формате HSL (оттенок, насыщенность, яркость)
+            });';
+            if (count($departmentIds) > 0) {
+                echo'
+                const ctx' . $departmentNameEn . '3 = document.getElementById("chart' . $departmentNameEn . '3").getContext("2d");
+                const labels = ' . json_encode($filteredLabels) . ';
+                const differences = ' . json_encode($filteredDifferences) . ';
+                function generateDistinctColors(numColors) {
+                    const colors = [];
+                    const step = 360 / numColors; // Угол в цветовом круге между соседними цветами
+                    for (let i = 0; i < numColors; i++) {
+                        const hue = (i * step) % 360; // Вычисляем оттенок
+                        colors.push(`hsl(${hue}, 50%, 50%)`); // Цвет в формате HSL (оттенок, насыщенность, яркость)
+                    }
+                    return colors;
                 }
-                return colors;
-            }
-            function shuffle(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1)); // Случайный индекс от 0 до i
-                    [array[i], array[j]] = [array[j], array[i]]; // Обмен значений
+                function shuffle(array) {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1)); // Случайный индекс от 0 до i
+                        [array[i], array[j]] = [array[j], array[i]]; // Обмен значений
+                    }
+                    return array;
                 }
-                return array;
-            }
-            const questionColors = shuffle(generateDistinctColors(labels.length));
-            // Сортировка данных по убыванию
-            const sortedData = labels
-                .map((label, index) => ({
-                    label: label,
-                    value: differences[index]
-                }))
-                .sort((a, b) => b.value - a.value); // Сортируем по значениям
+                const questionColors = shuffle(generateDistinctColors(labels.length));
+                // Сортировка данных по убыванию
+                const sortedData = labels
+                    .map((label, index) => ({
+                        label: label,
+                        value: differences[index]
+                    }))
+                    .sort((a, b) => b.value - a.value); // Сортируем по значениям
 
-            // Перестраиваем данные и метки
-            const sortedLabels = sortedData.map(item => item.label);
-            const sortedDifferences = sortedData.map(item => item.value);
-            new Chart(ctx' . $departmentNameEn . '3, {
-                type: "bar",
-                data: {
-                    labels: sortedLabels,
-                    datasets: [{
-                        label: "Разница в положительных ответах (%)",
-                        data: sortedDifferences,
-                        backgroundColor: questionColors,
-                        borderColor: questionColors,
-                        borderWidth: 1,
-                    }]
-                },
-                options: {
-                    indexAxis: "y",
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            suggestedMin: Math.min(...sortedDifferences) - 5,
-                            suggestedMax: Math.max(...sortedDifferences) + 5,
-                            title: {
-                                display: true,
-                                text: "Разница (%)",
+                // Перестраиваем данные и метки
+                const sortedLabels = sortedData.map(item => item.label);
+                const sortedDifferences = sortedData.map(item => item.value);
+                new Chart(ctx' . $departmentNameEn . '3, {
+                    type: "bar",
+                    data: {
+                        labels: sortedLabels,
+                        datasets: [{
+                            label: "Разница в положительных ответах (%)",
+                            data: sortedDifferences,
+                            backgroundColor: questionColors,
+                            borderColor: questionColors,
+                            borderWidth: 1,
+                        }]
+                    },
+                    options: {
+                        indexAxis: "y",
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                suggestedMin: Math.min(...sortedDifferences) - 5,
+                                suggestedMax: Math.max(...sortedDifferences) + 5,
+                                title: {
+                                    display: true,
+                                    text: "Разница (%)",
+                                },
                             },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "Вопросы",
+                                },
+                            }
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: "Вопросы",
+                        plugins: {
+                            legend: {
+                                display: false,
+                                position: "top",
                             },
                         }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false,
-                            position: "top",
-                        },
                     }
-                }
-            });
-        });
+                });';
+            }
+        echo'});
     </script>';
 }
 
