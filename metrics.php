@@ -183,6 +183,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $previousPositiveRates = []; //положительные ответы за предыдущий период
     $differences = [];
     $count = 0;
+    $total_promouters_prev = 0; //промоутеры
+    $total_critics_prev = 0; //критики
     $total_sum_arr_prev = []; // Для подсчёта по всей компании
     $total_count_prev = 0; // Количество всех участников по компании
     // Расчеты для предыдущего периода
@@ -207,9 +209,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             $total_sum_arr_prev[$i] += $item[$i];
         }
         if ($item[12] >= 0.9) {
-            $total_promouters++;
+            $total_promouters_prev++;
         } elseif ($item[12] <= 0.6) {
-            $total_critics++;
+            $total_critics_prev++;
         }
         $total_count_prev++;
         // Считаем только для департамента, если он указан
@@ -226,9 +228,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                     $ev_arr[$i] += $item[$i];
                     if ($i == 12) {
                         if ($item[$i] >= 0.9 && $item[$i] <= 1) {
-                            $promouters++;
+                            $promouters_prev++;
                         } elseif ($item[$i] >= 0 && $item[$i] <= 0.6) {
-                            $critics++;
+                            $critics_prev++;
                         }
                     }
                 }
@@ -281,6 +283,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         ${$departmentNameEn . "_prev_avg_arr"}[$questionText] = round($item / $count * 100, 2);
     }
     $eNPS_prev = $promouter_percent - $critics_percent;
+    $eNPSCompany_prev = $total_count_prev > 0 ? round((($total_promouters_prev - $total_critics_prev) / $total_count_prev) * 100, 2) : 0;
     //echo '</div><div class="third"><h3>Предпредыдущий период</h3>';
     $sum_arr = []; //общее
     $ov_arr = []; //организационное ОВ
@@ -398,10 +401,17 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             <h1>" . $totalEmployees . "/" . $participationRate . "%</h1>
         </div>";
     }
+    if (count($departmentIds) > 0) {
     echo "<div class='square'>
         <u><h3>eNPS общ./eNPS " . $departmentNameRu . "</h3></u>
         <h1>" . $eNPSCompany . "%/" . $eNPS . "%</h1>
     </div></div>";
+    }else{
+        echo "<div class='square'>
+        <u><h3>eNPS тек./eNPS пред.</h3></u>
+        <h1>" . $eNPSCompany . "%/" . $eNPSCompany_prev . "%</h1>
+    </div></div>";
+    }
     ${$departmentNameEn . "_prev_prev_avg_arr"} = [];
     foreach ($sum_arr as $key => $item) {
         $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
