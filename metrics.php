@@ -13,6 +13,40 @@ $data_prev_prev = mysqli_fetch_all($data_prev_prev);
 $employees = mysqli_query($db, "SELECT * FROM `employees`");
 $employees = mysqli_fetch_all($employees);
 
+$query = "
+        SELECT 
+            CASE
+                WHEN d.id IN (3, 4, 5, 6, 7) THEN 'Производственный департамент'
+                WHEN d.id IN (8, 9, 10) THEN 'Департамент развития бизнеса и продуктов'
+                WHEN d.id IN (12, 13) THEN 'Проектный офис - Менеджеры'
+                ELSE d.name
+            END AS department_name,
+            COUNT(e.id) AS total_employees,
+            COUNT(DISTINCT r.id) AS current_participants,
+            COUNT(DISTINCT pr.id) AS previous_participants
+        FROM departments d
+        LEFT JOIN employees e ON d.id = e.department_id
+        LEFT JOIN results r ON e.id = r.id
+        LEFT JOIN prev_results pr ON e.id = pr.id
+        WHERE d.id != 19
+        GROUP BY 
+            CASE
+                WHEN d.id IN (3, 4, 5, 6, 7) THEN 'Производственный департамент'
+                WHEN d.id IN (8, 9, 10) THEN 'Департамент развития бизнеса и продуктов'
+                WHEN d.id IN (12, 13) THEN 'Проектный офис - Менеджеры'
+                ELSE d.name
+            END;
+
+";
+
+$result = $db->query($query);
+
+// Преобразуем результат в массив для передачи в функцию
+$percentages = [];
+while ($row = $result->fetch_assoc()) {
+    $percentages[] = $row;
+}
+
 $questions = [
     3 => "Знаю ли я, что от меня ожидается на работе?",
     4 => "Располагаю ли я доступом к информации, а также необходимыми знаниями внутренних процедур для правильного выполнения моей работы?",
@@ -41,7 +75,7 @@ function roundToNearestFive($number)
 {
     return round($number / 5) * 5;
 }
-function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees)
+function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages)
 {
     echo '<h1>Дашборд ' . $departmentNameRu . '</h1>
     <div class="container"><div class="first">';
@@ -360,6 +394,27 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $involvement_emo_prev_prev = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);
     // echo ("ЭВ " . $involvement_emo_prev_prev . "<br>");
     // echo ("<br>");
+
+    if($departmentIds==[]){
+        //вычисление процента участия по департаментам
+        // Подготовка данных для графика
+        $departments = [];
+        $currentPercentages = [];
+        $previousPercentages = [];
+        foreach ($percentages as $row) {
+            $departments[] = $row['department_name'];
+            $totalEmployees = (int)$row['total_employees'];
+            $currentParticipants = (int)$row['current_participants'];
+            $previousParticipants = (int)$row['previous_participants'];
+
+            // Вычисляем проценты участия
+            $currentPercentages[] = $totalEmployees > 0 ? round(($currentParticipants / $totalEmployees) * 100, 2) : 0;
+            $previousPercentages[] = $totalEmployees > 0 ? round(($previousParticipants / $totalEmployees) * 100, 2) : 0;
+        }
+    }
+    
+    
+
     // Вычисление разницы положительных ответов
     foreach ($questions as $questionId => $questionText) {
         $currentRate = $currentPositiveRates[$questionId] ?? 0;
@@ -387,18 +442,20 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         <u><h3>Вовлеченность по компании (тек./прош.)</h3></u>
         <h1>" . $involvement_total_company . "%/" . $involvement_total_company_prev . "%</h1>
     </div>";
-    echo "<div class='square'>
-        <u><h3>Вовлеченность " . $departmentNameRu . "  (тек./прош.)</h3></u>
-        <h1>" . $involvement_total . "%/" . $involvement_total_prev . "%</h1>
-    </div>";
+    if (count($departmentIds) > 0) {
+        echo "<div class='square'>
+            <u><h3>Вовлеченность " . $departmentNameRu . "  (тек./прош.)</h3></u>
+            <h1>" . $involvement_total . "%/" . $involvement_total_prev . "%</h1>
+        </div>";
+    }
     echo "<div class='square'>
         <u><h3>Участники по компании (кол-во/процент)</h3></u>
-        <h1>" . $totalEmployeesCompany . "/" . $participationRateCompany . "%</h1>
+        <h1>" . $participantsCompany . "/" . $participationRateCompany . "%</h1>
     </div>";
     if (count($departmentIds) > 0) {
         echo "<div class='square'>
             <u><h3>Участники по департаменту (кол-во/процент)</h3></u>
-            <h1>" . $totalEmployees . "/" . $participationRate . "%</h1>
+            <h1>" . $participants . "/" . $participationRate . "%</h1>
         </div>";
     }
     if (count($departmentIds) > 0) {
@@ -445,6 +502,10 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     if (count($departmentIds) > 0) {
         echo '<div class="graph' . $departmentNameEn . '3">
             <canvas id="chart' . $departmentNameEn . '3" width="100" height="50"></canvas>
+        </div>';
+    }else{
+        echo '<div class="graphPercentages">
+            <canvas id="chartPercentages" width="400" height="400"></canvas>
         </div>';
     }
 
@@ -672,6 +733,80 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         }
                     }
                 });';
+            }else{
+                echo'
+                const departmentLabels = ' . json_encode($departments) . ';
+                const currentPercentages = ' . json_encode($currentPercentages) . ';
+                const previousPercentages = ' . json_encode($previousPercentages) . ';
+                console.log(departmentLabels);
+                console.log(currentPercentages);
+                console.log(previousPercentages);
+                const ctxPercentages = document.getElementById("chartPercentages").getContext("2d");
+
+                new Chart(ctxPercentages, {
+                    type: "bar",
+                    data: {
+                        labels: departmentLabels,
+                        datasets: [
+                            {
+                                label: "Текущий период",
+                                data: currentPercentages,
+                                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                                borderColor: "rgba(75, 192, 192, 1)",
+                                borderWidth: 1
+                            },
+                            {
+                                label: "Предыдущий период",
+                                data: previousPercentages,
+                                backgroundColor: "rgba(153, 102, 255, 0.6)",
+                                borderColor: "rgba(153, 102, 255, 1)",
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: "Процент участия (%)"
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "Подразделения"
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true
+                            },
+                            tooltip: {
+                                enabled: true
+                            },
+                            datalabels: {
+                                display: true,
+                                color: "black",
+                                anchor: "end", // Привязка лейбла к верхнему краю столбца
+                                align: "top", // Лейбл будет над столбцом
+                                formatter: function (value) {
+                                    return value + "%"; // Добавляем знак процента
+                                },
+                                font: {
+                                    size: 12
+                                },
+                                offset: 5 // Отступ над столбцом
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                });
+                ';
             }
         echo'});
     </script>';
@@ -688,6 +823,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 </head>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
 
@@ -737,57 +873,57 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $departmentIds = [];
     $departmentNameRu = "Общий";
     $departmentNameEn = "all";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [12, 13, 14];
     $departmentNameRu = "PMO";
     $departmentNameEn = "PMO";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [2, 3, 4, 5, 6, 7];
     $departmentNameRu = "Производственный департамент";
     $departmentNameEn = "PrDep";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [8, 9, 10];
     $departmentNameRu = "Департамент развития бизнеса и продуктов";
     $departmentNameEn = "BusProdDep";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [15];
     $departmentNameRu = "Служба персонала";
     $departmentNameEn = "HR";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [16];
     $departmentNameRu = "Служба бизнес-процессов";
     $departmentNameEn = "SBP";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [2];
     $departmentNameRu = "Технический департамент";
     $departmentNameEn = "TecDep";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [11];
     $departmentNameRu = "Департамент бизнес-анализа";
     $departmentNameEn = "DepBusAn";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [17];
     $departmentNameRu = "Бэк-офис";
     $departmentNameEn = "Back";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [18];
     $departmentNameRu = "Руководитель департамента/службы";
     $departmentNameEn = "supervisor";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [1];
     $departmentNameRu = "Департамент инноваций";
     $departmentNameEn = "DepInn";
-    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees);
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
     ?>
 </body>
 <script>
