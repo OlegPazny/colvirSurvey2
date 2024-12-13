@@ -204,6 +204,11 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
         ${$departmentNameEn . "_curr_avg_arr"}[$questionText] = round($item / $count * 100, 2);
     }
+    $company_curr_avg_arr = [];
+    foreach ($total_sum_arr as $key => $item) {
+        $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
+        $company_curr_avg_arr[$questionText] = round($item / $total_count * 100, 2);
+    }
     //eNPS
     $promouter_percent = round($promouters / $people_amount * 100, 2);
     $critics_percent = round($critics / $people_amount * 100, 2);
@@ -395,7 +400,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     // echo ("ЭВ " . $involvement_emo_prev_prev . "<br>");
     // echo ("<br>");
 
-    if($departmentIds==[]){
+    if ($departmentIds == []) {
         //вычисление процента участия по департаментам
         // Подготовка данных для графика
         $departments = [];
@@ -412,18 +417,18 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             $previousPercentages[] = $totalEmployees > 0 ? round(($previousParticipants / $totalEmployees) * 100, 2) : 0;
         }
     }
-    
-    
+
+
 
     // Вычисление разницы положительных ответов
     foreach ($questions as $questionId => $questionText) {
         $currentRate = $currentPositiveRates[$questionId] ?? 0;
         $previousRate = $previousPositiveRates[$questionId] ?? 0;
-        $differences[$questionId] = $currentRate - $previousRate;
+        $differences[$questionId] = round($currentRate - $previousRate, 2);
     }
     $differences = array_values($differences);
-    // Округляем разницу до ближайшего числа, кратного 5
-    $differences = array_map('roundToNearestFive', $differences);
+    // // Округляем разницу до ближайшего числа, кратного 5
+    // $differences = array_map('roundToNearestFive', $differences);
     // Фильтруем разницу, исключая 0 и соответствующие метки
     $filteredDifferences = [];
     $filteredLabels = [];
@@ -503,7 +508,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         echo '<div class="graph' . $departmentNameEn . '3">
             <canvas id="chart' . $departmentNameEn . '3" width="100" height="50"></canvas>
         </div>';
-    }else{
+    } else {
         echo '<div class="graphPercentages">
             <canvas id="chartPercentages" width="400" height="400"></canvas>
         </div>';
@@ -514,15 +519,17 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         document.addEventListener("DOMContentLoaded", function() {
             const ' . $departmentNameEn . 'labels = ' . json_encode(array_keys(${$departmentNameEn . "_curr_avg_arr"})) . ';
             const ' . $departmentNameEn . 'chartData = ' . json_encode(${$departmentNameEn . "chartData"}) . ';
+            const companyCurrentData=' . json_encode(array_values($company_curr_avg_arr)) . ';
             const ' . $departmentNameEn . 'currentData = ' . json_encode(array_values(${$departmentNameEn . "_curr_avg_arr"})) . ';
             const ' . $departmentNameEn . 'previousData = ' . json_encode(array_values(${$departmentNameEn . "_prev_avg_arr"})) . ';
-            const ' . $departmentNameEn . 'prevPreviousData = ' . json_encode(array_values(${$departmentNameEn . "_prev_prev_avg_arr"})) . ';
+            const ' . $departmentNameEn . 'prevPreviousData = ' . json_encode(array_values(${$departmentNameEn . "_prev_prev_avg_arr"})) . ';';
+    if (count($departmentIds) > 0) {
+        echo '
             // Предполагаем, что currentData и previousData имеют одинаковую длину
             let ' . $departmentNameEn . 'sortedData = ' . $departmentNameEn . 'labels.map((label, index) => ({
                 label: label,
+                companyCurrentValue: companyCurrentData[index],
                 ' . $departmentNameEn . 'currentValue: ' . $departmentNameEn . 'currentData[index],
-                ' . $departmentNameEn . 'previousValue: ' . $departmentNameEn . 'previousData[index],
-                ' . $departmentNameEn . 'prevPreviousValue: ' . $departmentNameEn . 'prevPreviousData[index],
             }));
 
             // Сортируем по текущим значениям в порядке убывания
@@ -531,9 +538,30 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             // Создаем новые массивы для меток и данных
             const ' . $departmentNameEn . 'sortedLabels = ' . $departmentNameEn . 'sortedData.map(item => item.label);
             const ' . $departmentNameEn . 'sortedCurrentData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'currentValue);
-            const ' . $departmentNameEn . 'sortedPreviousData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'previousValue);
-            const ' . $departmentNameEn . 'sortedPrevPreviousData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'prevPreviousValue);
+            const companySortedCurrentData = ' . $departmentNameEn . 'sortedData.map(item => item.companyCurrentValue);';
+       
+    } else {
+        echo '
+        // Предполагаем, что currentData и previousData имеют одинаковую длину
+        let ' . $departmentNameEn . 'sortedData = ' . $departmentNameEn . 'labels.map((label, index) => ({
+            label: label,
+            ' . $departmentNameEn . 'currentValue: ' . $departmentNameEn . 'currentData[index],
+            ' . $departmentNameEn . 'previousValue: ' . $departmentNameEn . 'previousData[index],
+            ' . $departmentNameEn . 'prevPreviousValue: ' . $departmentNameEn . 'prevPreviousData[index],
+        }));
 
+        // Сортируем по текущим значениям в порядке убывания
+        ' . $departmentNameEn . 'sortedData.sort((a, b) => b.' . $departmentNameEn . 'currentValue - a.' . $departmentNameEn . 'currentValue);
+
+        // Создаем новые массивы для меток и данных
+        const ' . $departmentNameEn . 'sortedLabels = ' . $departmentNameEn . 'sortedData.map(item => item.label);
+        const ' . $departmentNameEn . 'sortedCurrentData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'currentValue);
+        const ' . $departmentNameEn . 'sortedPreviousData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'previousValue);
+        const ' . $departmentNameEn . 'sortedPrevPreviousData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'prevPreviousValue);
+    ';
+    }
+
+    echo '
             const ctx' . $departmentNameEn . '1 = document.getElementById("chart' . $departmentNameEn . '1").getContext("2d");
             const chart' . $departmentNameEn . '1 = new Chart(ctx' . $departmentNameEn . '1, {
                 type: "bar",
@@ -597,8 +625,27 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             const chart' . $departmentNameEn . '2 = new Chart(ctx' . $departmentNameEn . '2, {
                 type: "bar",
                 data: {
-                    labels: ' . $departmentNameEn . 'sortedLabels,
-                    datasets: [{
+                    labels: ' . $departmentNameEn . 'sortedLabels,';
+                    if(count($departmentIds)>0){
+                        echo 'datasets: [{
+                            label: "Компания",
+                            data: companySortedCurrentData,
+                            backgroundColor: "#999B9A", // Корпоративный синий цвет
+                            borderColor: "#999B9A",
+                            borderWidth: 1,
+                            barThickness: 10, // Уменьшаем ширину столбцов
+                        },
+                        {
+                            label: "'.$departmentNameRu.'",
+                            data: ' . $departmentNameEn . 'sortedCurrentData,
+                            backgroundColor: "#2E5B9B", // Серый цвет
+                            borderColor: "#2E5B9B",
+                            borderWidth: 1,
+                            barThickness: 10, // Уменьшаем ширину столбцов
+                        }
+                    ],';
+                    }else{
+                        echo 'datasets: [{
                             label: "Текущий период",
                             data: ' . $departmentNameEn . 'sortedCurrentData,
                             backgroundColor: "#999B9A", // Корпоративный синий цвет
@@ -622,7 +669,10 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             borderWidth: 1,
                             barThickness: 10, // Уменьшаем ширину столбцов
                         },
-                    ],
+                    ],';
+                    }
+
+                  echo'  
                 },
                 options: {
                     indexAxis: "y", // Делаем столбцы горизонтальными
@@ -661,8 +711,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 },
                 plugins: [ChartDataLabels] // Убедитесь, что у вас подключен плагин datalabels
             });';
-            if (count($departmentIds) > 0) {
-                echo'
+    if (count($departmentIds) > 0) {
+        echo '
                 const ctx' . $departmentNameEn . '3 = document.getElementById("chart' . $departmentNameEn . '3").getContext("2d");
                 const labels = ' . json_encode($filteredLabels) . ';
                 const differences = ' . json_encode($filteredDifferences) . ';
@@ -733,8 +783,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         }
                     }
                 });';
-            }else{
-                echo'
+    } else {
+        echo '
                 const departmentLabels = ' . json_encode($departments) . ';
                 const currentPercentages = ' . json_encode($currentPercentages) . ';
                 const previousPercentages = ' . json_encode($previousPercentages) . ';
@@ -807,8 +857,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                     plugins: [ChartDataLabels]
                 });
                 ';
-            }
-        echo'});
+    }
+    echo '});
     </script>';
 }
 
@@ -876,8 +926,23 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [12, 13, 14];
-    $departmentNameRu = "PMO";
+    $departmentNameRu = "Проектный офис";
     $departmentNameEn = "PMO";
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
+
+    $departmentIds = [12];
+    $departmentNameRu = "Проектный офис - Менеджеры разработки";
+    $departmentNameEn = "PMOdev";
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
+
+    $departmentIds = [13];
+    $departmentNameRu = "Проектный офис - Менеджеры внедрения";
+    $departmentNameEn = "PMOimpl";
+    generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
+
+    $departmentIds = [14];
+    $departmentNameRu = "Проектный офис - Отдел внедрения";
+    $departmentNameEn = "PMOimpldep";
     generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
 
     $departmentIds = [2, 3, 4, 5, 6, 7];
