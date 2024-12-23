@@ -768,6 +768,25 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             });
                         },
                     },
+                    {
+                        id: "drawThresholdLine",
+                        beforeDraw: (chart) => {
+                            const ctx = chart.ctx;
+                            const xScale = chart.scales.x;
+
+                            // Координата на оси X для 70%
+                            const thresholdX = xScale.getPixelForValue(70);
+
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.moveTo(thresholdX, chart.chartArea.top); // Начало линии
+                            ctx.lineTo(thresholdX, chart.chartArea.bottom); // Конец линии
+                            ctx.strokeStyle = "red";
+                            ctx.lineWidth = 2;
+                            ctx.stroke();
+                            ctx.restore();
+                        },
+                    },
                 ],';
                 }
             echo'});';
