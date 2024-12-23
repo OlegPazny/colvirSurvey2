@@ -621,8 +621,13 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 plugins: [ChartDataLabels] // Включаем плагин
             });
 
-            const ctx' . $departmentNameEn . '2 = document.getElementById("chart' . $departmentNameEn . '2").getContext("2d");
-            const chart' . $departmentNameEn . '2 = new Chart(ctx' . $departmentNameEn . '2, {
+            const ctx' . $departmentNameEn . '2 = document.getElementById("chart' . $departmentNameEn . '2").getContext("2d");';
+            if(count($departmentIds)>0){
+                echo 'const departmentData = ' . $departmentNameEn . 'sortedCurrentData;
+                // Генерация цветов для текста вопросов
+                const questionColors' . $departmentNameEn . ' = departmentData.map(value => value < 70 ? "red" : "#000");';
+            }
+            echo 'const chart' . $departmentNameEn . '2 = new Chart(ctx' . $departmentNameEn . '2, {
                 type: "bar",
                 data: {
                     labels: ' . $departmentNameEn . 'sortedLabels,';
@@ -643,7 +648,44 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             borderWidth: 1,
                             barThickness: 10, // Уменьшаем ширину столбцов
                         }
-                    ],';
+                    ],
+                    },
+                options: {
+                    indexAxis: "y", // Делаем столбцы горизонтальными
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: "Показатели (%)",
+                            },
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "Вопросы",
+                            },
+                            ticks: {
+                                callback: function(value, index) {
+                                    // Возвращаем текст с динамическим цветом
+                                    const label = this.getLabelForValue(value);
+                                    const color = questionColors' . $departmentNameEn . '[index] || "#000";
+                                    console.log(color);
+                                    return `${label}`;
+                                },
+                                font: {
+                                    size: 12,
+                                },
+                                color: function(context) {
+                                    // Устанавливаем цвет текста
+                                    const index = context.index;
+                                    return questionColors' . $departmentNameEn . '[index] || "#000";
+                                },
+                            }
+                        },
+                    },';
                     }else{
                         echo 'datasets: [{
                             label: "Текущий период",
@@ -660,20 +702,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             borderColor: "#2E5B9B",
                             borderWidth: 1,
                             barThickness: 10, // Уменьшаем ширину столбцов
-                        },
-                        {
-                            label: "Предпредыдущий период",
-                            data: ' . $departmentNameEn . 'sortedPrevPreviousData,
-                            backgroundColor: "#2E5B0B", // Серый цвет
-                            borderColor: "#2E5B9B",
-                            borderWidth: 1,
-                            barThickness: 10, // Уменьшаем ширину столбцов
-                        },
-                    ],';
-                    }
-
-                  echo'  
-                },
+                        }
+                    ],
+                    },
                 options: {
                     indexAxis: "y", // Делаем столбцы горизонтальными
                     responsive: true,
@@ -692,7 +723,11 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                                 text: "Вопросы",
                             },
                         },
-                    },
+                    },';
+                    }
+
+                  echo'  
+                
                     plugins: {
                         legend: {
                             position: "top",
@@ -708,9 +743,34 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             color: "#000", // Цвет текста
                         },
                     },
-                },
-                plugins: [ChartDataLabels] // Убедитесь, что у вас подключен плагин datalabels
-            });';
+                },';
+                if(count($departmentIds)> 0){
+                echo '
+                plugins: [
+                    ChartDataLabels,
+                    {
+                        id: "highlightLabels",
+                        beforeDraw: (chart) => {
+                            const ctx = chart.ctx;
+                            const yAxis = chart.scales.y;
+
+                            yAxis.ticks.forEach((tick, index) => {
+                                const label = yAxis.getLabelForValue(tick.value);
+                                const color = questionColors' . $departmentNameEn . '[index] || "#000";
+
+                                ctx.save();
+                                ctx.fillStyle = color;
+                                ctx.textAlign = "right";
+                                ctx.textBaseline = "middle";
+                                ctx.font = "12px Arial";
+                                ctx.fillText(label, yAxis.left - 10, yAxis.getPixelForTick(index));
+                                ctx.restore();
+                            });
+                        },
+                    },
+                ],';
+                }
+            echo'});';
     if (count($departmentIds) > 0) {
         echo '
                 const ctx' . $departmentNameEn . '3 = document.getElementById("chart' . $departmentNameEn . '3").getContext("2d");
@@ -788,9 +848,6 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 const departmentLabels = ' . json_encode($departments) . ';
                 const currentPercentages = ' . json_encode($currentPercentages) . ';
                 const previousPercentages = ' . json_encode($previousPercentages) . ';
-                console.log(departmentLabels);
-                console.log(currentPercentages);
-                console.log(previousPercentages);
                 const ctxPercentages = document.getElementById("chartPercentages").getContext("2d");
 
                 new Chart(ctxPercentages, {
@@ -801,15 +858,15 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             {
                                 label: "Текущий период",
                                 data: currentPercentages,
-                                backgroundColor: "rgba(75, 192, 192, 0.6)",
-                                borderColor: "rgba(75, 192, 192, 1)",
+                                backgroundColor: "rgb(174, 0, 0)",
+                                borderColor: "rgb(174, 0, 0)",
                                 borderWidth: 1
                             },
                             {
                                 label: "Предыдущий период",
                                 data: previousPercentages,
-                                backgroundColor: "rgba(153, 102, 255, 0.6)",
-                                borderColor: "rgba(153, 102, 255, 1)",
+                                backgroundColor: "rgb(0, 88, 165)",
+                                borderColor: "rgb(0, 88, 165)",
                                 borderWidth: 1
                             }
                         ]
