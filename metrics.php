@@ -10,7 +10,7 @@ $data_prev = mysqli_fetch_all($data_prev);
 $data_prev_prev = mysqli_query($db, "SELECT * FROM `prev_prev_results`");
 $data_prev_prev = mysqli_fetch_all($data_prev_prev);
 
-$employees = mysqli_query($db, "SELECT * FROM `employees`");
+$employees = mysqli_query($db, "SELECT * FROM departments;");
 $employees = mysqli_fetch_all($employees);
 
 $query = "
@@ -21,14 +21,12 @@ $query = "
                 WHEN d.id IN (12, 13) THEN 'Проектный офис - Менеджеры'
                 ELSE d.name
             END AS department_name,
-            COUNT(e.id) AS total_employees,
-            COUNT(DISTINCT r.id) AS current_participants,
-            COUNT(DISTINCT pr.id) AS previous_participants
-        FROM departments d
-        LEFT JOIN employees e ON d.id = e.department_id
-        LEFT JOIN results r ON e.id = r.id
-        LEFT JOIN prev_results pr ON e.id = pr.id
-        WHERE d.id != 19
+            SUM(d.current) AS total_employees,
+            SUM((SELECT COUNT(*) FROM results r WHERE r.q1 = d.id)) AS current_participants,
+            SUM((SELECT COUNT(*) FROM prev_results pr WHERE pr.q1 = d.id)) AS previous_participants
+        FROM 
+            departments d
+            WHERE d.id != 19
         GROUP BY 
             CASE
                 WHEN d.id IN (3, 4, 5, 6, 7) THEN 'Производственный департамент'
@@ -36,7 +34,6 @@ $query = "
                 WHEN d.id IN (12, 13) THEN 'Проектный офис - Менеджеры'
                 ELSE d.name
             END;
-
 ";
 
 $result = $db->query($query);
@@ -150,11 +147,11 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $totalEmployeesCompany = 0;
     $participantsCompany = $total_count; // Количество респондентов уже подсчитано выше
     foreach ($employees as $employee) {
-        $totalEmployeesCompany++;
+        $totalEmployeesCompany+=$employee[2];
     }
     foreach ($employees as $employee) {
-        if (in_array($employee[1], $departmentIds)) {
-            $totalEmployees++;
+        if (in_array($employee[0], $departmentIds)) {
+            $totalEmployees+=$employee[2];
         }
     }
     $participationRateCompany = $totalEmployeesCompany > 0 ? round(($participantsCompany / $totalEmployeesCompany) * 100, 2) : 0;
