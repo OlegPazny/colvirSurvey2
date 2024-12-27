@@ -1,25 +1,24 @@
 $(document).ready(function() {
-    // Сохранение данных исследования
-    $("#surveyForm").submit(function(event) {
+    $('#surveyForm').on('submit', function (event) {
         event.preventDefault();
-        
-        if (confirm("Вы уверены, что хотите сохранить название исследования и загрузить данные сотрудников?")) {
-            const formData = new FormData(this);
-
-            $.ajax({
-                url: 'assets/api/update_survey.php', // Сохранение названия и загрузка Excel
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    alert("Данные успешно сохранены!");
-                },
-                error: function() {
-                    alert("Ошибка при сохранении данных.");
+        // Собираем данные формы
+        let formData = $(this).serialize();
+        // Отправляем AJAX-запрос
+        $.ajax({
+            url: 'assets/api/update_survey.php',
+            type: 'POST',
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+                    alert('Данные о текущем исследовании обновлены успешно.');
+                } else {
+                    alert('Ошибка при обновлении: ' + response.error);
                 }
-            });
-        }
+            },
+            error: function () {
+                alert('Не удалось выполнить запрос.');
+            }
+        });
     });
 
     // Начало нового опроса

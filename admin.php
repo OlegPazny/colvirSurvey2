@@ -1,3 +1,11 @@
+<?php
+    require_once "assets/api/db_connect.php";
+
+    $deps=mysqli_query($db, "SELECT * FROM `departments`");
+    $deps=mysqli_fetch_all($deps);
+
+    $survey=mysqli_query($db, "SELECT * FROM `survey`");
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,33 +17,44 @@
 </head>
 <body>
 <div class="container mt-5">
-    <!-- Название исследования -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5>Название исследования</h5>
-        </div>
-        <div class="card-body">
-            <form id="surveyForm">
-                <div class="form-group">
-                    <label for="surveyTitle">Введите название исследования</label>
-                    <input type="text" class="form-control" id="surveyTitle" name="surveyTitle" placeholder="Например: Опрос за 2024 год" required>
-                </div>
-                <div class="form-group">
-                    <label for="excelFile">Загрузите Excel с данными сотрудников</label>
-                    <input type="file" class="form-control-file" id="excelFile" name="excelFile" accept=".xls,.xlsx" required>
-                </div>
-                <button type="submit" class="btn btn-primary mt-3">Сохранить</button>
-            </form>
-        </div>
-    </div>
-
     <!-- Начать новый опрос -->
-    <div class="card">
+    <div class="card mb-4">
         <div class="card-header">
             <h5>Управление опросом</h5>
         </div>
         <div class="card-body">
             <button id="startNewSurvey" class="btn btn-danger">Начать новый опрос</button>
+        </div>
+    </div>
+    <!-- Название исследования -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Текущее исследование</h5>
+        </div>
+        <div class="card-body">
+            <form id="surveyForm">
+                <div class="form-group">
+                    <label for="surveyTitle">Введите название исследования</label>
+                    <input type="text" class="form-control" id="surveyTitle" name="surveyTitle" placeholder="Например: Опрос за 2024 год" <?php if(mysqli_num_rows($survey)>0){$survey=mysqli_fetch_assoc($survey); echo "value='".$survey['title']."'";}?> required>
+                </div>
+                <div class="form-group">
+                    <label for="excelFile">Загрузите количество сотрудников</label>
+                    <div class="d-flex flex-column">
+                        <?php
+                            foreach($deps as $dep) {
+                                if($dep[0]==19){
+                                    continue;
+                                }
+                                echo "<div class='d-flex flex-row align-items-center mb-2'>";
+                                echo "<input type='number' class='form-control w-25 me-2' id='dep_amount' name='".$dep[0]."' value='".$dep[2]."'>";
+                                echo "<label for='dep_amount'>".$dep[1]."</label>";
+                                echo "</div>";
+                            }
+                        ?>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Сохранить</button>
+            </form>
         </div>
     </div>
 </div>
