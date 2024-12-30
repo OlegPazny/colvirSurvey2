@@ -21,19 +21,26 @@ $(document).ready(function() {
         });
     });
 
-    // Начало нового опроса
     $("#startNewSurvey").click(function() {
         if (confirm("Вы уверены, что хотите начать новый опрос? Это действие нельзя отменить.")) {
-            $.ajax({
-                url: 'assets/api/new_survey.php', // Сдвиг таблиц и бэкап БД
-                type: 'POST',
-                success: function(response) {
-                    alert(response);
-                },
-                error: function() {
-                    alert("Ошибка при запуске нового опроса.");
-                }
-            });
+            // Шаг 1: Скачиваем бэкап
+            window.location.href = 'assets/api/new_survey.php?action=backup&timestamp=' + new Date().getTime();
+    
+            // Шаг 2: Сдвигаем таблицы после завершения бэкапа
+            setTimeout(function() {
+                $.ajax({
+                    url: 'assets/api/new_survey.php',
+                    type: 'POST',
+                    success: function(response) {
+                        let result = JSON.parse(response);
+                        alert(result.message);
+                    },
+                    error: function() {
+                        alert("Ошибка при запуске нового опроса.");
+                    }
+                });
+            }, 2000); // Устанавливаем небольшую задержку для завершения скачивания
         }
     });
+    
 });
