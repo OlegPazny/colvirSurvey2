@@ -35,6 +35,10 @@ function updateTables($db) {
         $db->query("TRUNCATE TABLE `prev_results`");
         $db->query("INSERT INTO `prev_results` SELECT * FROM `results`");
         $db->query("TRUNCATE TABLE `results`");
+        $db->query("UPDATE `departments` SET `prev_prev` = NULL");
+        $db->query("UPDATE `departments` SET `prev_prev` = `prev`");
+        $db->query("UPDATE `departments` SET `prev` = `current`");
+        $db->query("UPDATE `departments` SET `current` = NULL");
 
         // Подтверждаем изменения
         $db->commit();
