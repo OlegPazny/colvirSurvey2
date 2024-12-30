@@ -74,8 +74,6 @@ function roundToNearestFive($number)
 }
 function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages)
 {
-    echo '<h1>Дашборд ' . $departmentNameRu . '</h1>
-    <div class="container"><div class="first">';
     $sum_arr = []; //общее
     $ov_arr = []; //организационное ОВ
     $iv_arr = []; //интеллектуальное ИВ
@@ -147,11 +145,11 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $totalEmployeesCompany = 0;
     $participantsCompany = $total_count; // Количество респондентов уже подсчитано выше
     foreach ($employees as $employee) {
-        $totalEmployeesCompany+=$employee[2];
+        $totalEmployeesCompany += $employee[2];
     }
     foreach ($employees as $employee) {
         if (in_array($employee[0], $departmentIds)) {
-            $totalEmployees+=$employee[2];
+            $totalEmployees += $employee[2];
         }
     }
     $participationRateCompany = $totalEmployeesCompany > 0 ? round(($participantsCompany / $totalEmployeesCompany) * 100, 2) : 0;
@@ -439,8 +437,15 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 
     // Переиндексация массива после фильтрации
     $differences = array_values($differences);
-
-    echo "</div></div><div class='square-block'><div class='square'>
+    echo '<div class="accordion-item">
+                <h2 class="accordion-header" id="heading' . $departmentNameEn . '">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse' . $departmentNameEn . '" aria-expanded="true" aria-controls="collapse' . $departmentNameEn . '">
+                        ' . $departmentNameRu . '
+                    </button>
+                </h2>
+                <div id="collapse' . $departmentNameEn . '" class="accordion-collapse collapse" aria-labelledby="heading' . $departmentNameEn . '" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">';
+    echo "<div class='square-block'><div class='square'>
         <u><h3>Вовлеченность по компании (тек./прош.)</h3></u>
         <h1>" . $involvement_total_company . "%/" . $involvement_total_company_prev . "%</h1>
     </div>";
@@ -464,13 +469,14 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         echo "<div class='square'>
         <u><h3>eNPS общ./eNPS " . $departmentNameRu . "</h3></u>
         <h1>" . $eNPSCompany . "%/" . $eNPS . "%</h1>
-    </div></div>";
+    </div>";
     } else {
         echo "<div class='square'>
         <u><h3>eNPS тек./eNPS пред.</h3></u>
         <h1>" . $eNPSCompany . "%/" . $eNPSCompany_prev . "%</h1>
-    </div></div>";
+    </div>";
     }
+    echo '</div>';
     ${$departmentNameEn . "_prev_prev_avg_arr"} = [];
     foreach ($sum_arr as $key => $item) {
         $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
@@ -494,7 +500,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             "ЭВ" => $involvement_emo_prev_prev
         ]
     ];
-    echo '</div>
+    echo '
     <div class="graph' . $departmentNameEn . '1">
         <canvas id="chart' . $departmentNameEn . '1" width="100" height="50"></canvas>
     </div>
@@ -510,7 +516,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             <canvas id="chartPercentages" width="400" height="400"></canvas>
         </div>';
     }
-
+    echo '</div>
+        </div>
+        </div>';
     echo '
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -536,7 +544,6 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             const ' . $departmentNameEn . 'sortedLabels = ' . $departmentNameEn . 'sortedData.map(item => item.label);
             const ' . $departmentNameEn . 'sortedCurrentData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'currentValue);
             const companySortedCurrentData = ' . $departmentNameEn . 'sortedData.map(item => item.companyCurrentValue);';
-       
     } else {
         echo '
         // Предполагаем, что currentData и previousData имеют одинаковую длину
@@ -619,17 +626,17 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             });
 
             const ctx' . $departmentNameEn . '2 = document.getElementById("chart' . $departmentNameEn . '2").getContext("2d");';
-            if(count($departmentIds)>0){
-                echo 'const departmentData = ' . $departmentNameEn . 'sortedCurrentData;
+    if (count($departmentIds) > 0) {
+        echo 'const departmentData = ' . $departmentNameEn . 'sortedCurrentData;
                 // Генерация цветов для текста вопросов
                 const questionColors' . $departmentNameEn . ' = departmentData.map(value => value < 70 ? "red" : "#000");';
-            }
-            echo 'const chart' . $departmentNameEn . '2 = new Chart(ctx' . $departmentNameEn . '2, {
+    }
+    echo 'const chart' . $departmentNameEn . '2 = new Chart(ctx' . $departmentNameEn . '2, {
                 type: "bar",
                 data: {
                     labels: ' . $departmentNameEn . 'sortedLabels,';
-                    if(count($departmentIds)>0){
-                        echo 'datasets: [{
+    if (count($departmentIds) > 0) {
+        echo 'datasets: [{
                             label: "Компания",
                             data: companySortedCurrentData,
                             backgroundColor: "#999B9A", // Корпоративный синий цвет
@@ -638,7 +645,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             barThickness: 10, // Уменьшаем ширину столбцов
                         },
                         {
-                            label: "'.$departmentNameRu.'",
+                            label: "' . $departmentNameRu . '",
                             data: ' . $departmentNameEn . 'sortedCurrentData,
                             backgroundColor: "#2E5B9B", // Серый цвет
                             borderColor: "#2E5B9B",
@@ -683,8 +690,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             }
                         },
                     },';
-                    }else{
-                        echo 'datasets: [{
+    } else {
+        echo 'datasets: [{
                             label: "Текущий период",
                             data: ' . $departmentNameEn . 'sortedCurrentData,
                             backgroundColor: "#999B9A", // Корпоративный синий цвет
@@ -721,9 +728,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             },
                         },
                     },';
-                    }
+    }
 
-                  echo'  
+    echo '  
                 
                     plugins: {
                         legend: {
@@ -741,8 +748,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         },
                     },
                 },';
-                if(count($departmentIds)> 0){
-                echo '
+    if (count($departmentIds) > 0) {
+        echo '
                 plugins: [
                     ChartDataLabels,
                     {
@@ -785,8 +792,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         },
                     },
                 ],';
-                }
-            echo'});';
+    }
+    echo '});';
     if (count($departmentIds) > 0) {
         echo '
                 const ctx' . $departmentNameEn . '3 = document.getElementById("chart' . $departmentNameEn . '3").getContext("2d");
@@ -948,6 +955,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
 
 
 <style>
@@ -990,8 +998,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         color: #2E5B9B;
     }
 </style>
-
-<body>
+<div class="accordion" id="accordionExample">
     <?php
     $departmentIds = [];
     $departmentNameRu = "Общий";
@@ -1063,10 +1070,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $departmentNameEn = "DepInn";
     generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
     ?>
+</div>
 </body>
-<script>
-
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 
 </html>
