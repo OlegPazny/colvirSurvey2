@@ -21,7 +21,8 @@ $query = "
                 WHEN d.id IN (12, 13) THEN 'Проектный офис - Менеджеры'
                 ELSE d.name
             END AS department_name,
-            SUM(d.current) AS total_employees,
+            SUM(d.current) AS total_employees_current,
+            SUM(d.prev) AS total_employees_prev,
             SUM((SELECT COUNT(*) FROM results r WHERE r.q1 = d.id)) AS current_participants,
             SUM((SELECT COUNT(*) FROM prev_results pr WHERE pr.q1 = d.id)) AS previous_participants
         FROM 
@@ -403,13 +404,14 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         $previousPercentages = [];
         foreach ($percentages as $row) {
             $departments[] = $row['department_name'];
-            $totalEmployees = (int)$row['total_employees'];
+            $totalEmployees_current = (int)$row['total_employees_current'];
+            $totalEmployees_prev = (int)$row['total_employees_prev'];
             $currentParticipants = (int)$row['current_participants'];
             $previousParticipants = (int)$row['previous_participants'];
 
             // Вычисляем проценты участия
-            $currentPercentages[] = $totalEmployees > 0 ? round(($currentParticipants / $totalEmployees) * 100, 2) : 0;
-            $previousPercentages[] = $totalEmployees > 0 ? round(($previousParticipants / $totalEmployees) * 100, 2) : 0;
+            $currentPercentages[] = $totalEmployees_current > 0 ? round(($currentParticipants / $totalEmployees_current) * 100, 2) : 0;
+            $previousPercentages[] = $totalEmployees_prev > 0 ? round(($previousParticipants / $totalEmployees_prev) * 100, 2) : 0;
         }
     }
 
@@ -676,7 +678,6 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                                     // Возвращаем текст с динамическим цветом
                                     const label = this.getLabelForValue(value);
                                     const color = questionColors' . $departmentNameEn . '[index] || "#000";
-                                    console.log(color);
                                     return `${label}`;
                                 },
                                 font: {
