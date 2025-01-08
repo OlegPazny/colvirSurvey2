@@ -5,6 +5,7 @@ document.querySelectorAll('.export-to-pdf').forEach(button => {
         const targetId = this.dataset.target; // Получаем ID целевого элемента
         const targetElement = document.querySelector(targetId);
 
+        this.style.display = 'none';
         domtoimage.toPng(targetElement)
             .then(dataUrl => {
                 const pdf = new jsPDF("p", "mm", "a4");
@@ -18,11 +19,13 @@ document.querySelectorAll('.export-to-pdf').forEach(button => {
 
                 // Добавляем изображение
                 pdf.addImage(dataUrl, "PNG", 0, 0, imgWidth, imgHeight);
-
                 pdf.save("chart.pdf");
+                this.style.display = 'inline-block';
             })
             .catch(error => {
                 console.error("Ошибка при создании PDF:", error);
+                // Восстанавливаем кнопку, если произошла ошибка
+                this.style.display = 'inline-block';
             });
     });
 });
