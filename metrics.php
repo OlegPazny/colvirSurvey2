@@ -519,6 +519,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         </div>';
     }
     echo '</div>
+    <button class="btn btn-primary export-to-pdf" data-target="#collapse' . $departmentNameEn . '">Выгрузить в PDF</button>
         </div>
         </div>';
     echo '
@@ -624,7 +625,16 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                     barPercentage: 0.4, // Уменьшенная ширина столбцов
                     categoryPercentage: 0.8 // Плотное расположение столбцов
                 },
-                plugins: [ChartDataLabels] // Включаем плагин
+                plugins: [
+                    ChartDataLabels,
+                    {
+                        id: "corsFix",
+                        beforeDraw: (chart) => {
+                            const canvas = chart.canvas;
+                            canvas.crossOrigin = "anonymous"; // Настройка crossOrigin
+                        }
+                    }    
+                ] // Включаем плагин
             });
 
             const ctx' . $departmentNameEn . '2 = document.getElementById("chart' . $departmentNameEn . '2").getContext("2d");';
@@ -792,6 +802,13 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             ctx.restore();
                         },
                     },
+                    {
+                        id: "corsFix",
+                        beforeDraw: (chart) => {
+                            const canvas = chart.canvas;
+                            canvas.crossOrigin = "anonymous"; // Настройка crossOrigin
+                        }
+                    }
                 ],';
     }
     echo '});';
@@ -865,7 +882,16 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                                 position: "top",
                             },
                         }
-                    }
+                    },
+                    plugins:[
+                        {
+                            id: "corsFix",
+                            beforeDraw: (chart) => {
+                                const canvas = chart.canvas;
+                                canvas.crossOrigin = "anonymous"; // Настройка crossOrigin
+                            }
+                        },
+                    ],
                 });';
     } else {
         echo '
@@ -935,7 +961,16 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             }
                         }
                     },
-                    plugins: [ChartDataLabels]
+                    plugins: [
+                        ChartDataLabels,
+                        {
+                            id: "corsFix",
+                            beforeDraw: (chart) => {
+                                const canvas = chart.canvas;
+                                canvas.crossOrigin = "anonymous"; // Настройка crossOrigin
+                            }
+                        },
+                    ]
                 });
                 ';
     }
@@ -956,6 +991,10 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
 
 
@@ -1074,5 +1113,6 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="assets/js/export.js"></script>
 
 </html>
