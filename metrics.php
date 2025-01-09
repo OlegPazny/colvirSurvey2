@@ -638,11 +638,11 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             });
 
             const ctx' . $departmentNameEn . '2 = document.getElementById("chart' . $departmentNameEn . '2").getContext("2d");';
-    if (count($departmentIds) > 0) {
-        echo 'const departmentData = ' . $departmentNameEn . 'sortedCurrentData;
+
+    echo 'const departmentData = ' . $departmentNameEn . 'sortedCurrentData;
                 // Генерация цветов для текста вопросов
                 const questionColors' . $departmentNameEn . ' = departmentData.map(value => value < 70 ? "red" : "#000");';
-    }
+
     echo 'const chart' . $departmentNameEn . '2 = new Chart(ctx' . $departmentNameEn . '2, {
                 type: "bar",
                 data: {
@@ -665,8 +665,28 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             barThickness: 10, // Уменьшаем ширину столбцов
                         }
                     ],
-                    },
-                options: {
+                    },';
+    } else {
+        echo 'datasets: [{
+                            label: "Текущий период",
+                            data: ' . $departmentNameEn . 'sortedCurrentData,
+                            backgroundColor: "#999B9A", // Корпоративный синий цвет
+                            borderColor: "#999B9A",
+                            borderWidth: 1,
+                            barThickness: 10, // Уменьшаем ширину столбцов
+                        },
+                        {
+                            label: "Предыдущий период",
+                            data: ' . $departmentNameEn . 'sortedPreviousData,
+                            backgroundColor: "#2E5B9B", // Серый цвет
+                            borderColor: "#2E5B9B",
+                            borderWidth: 1,
+                            barThickness: 10, // Уменьшаем ширину столбцов
+                        }
+                    ],
+                    },';
+    }
+    echo '      options: {
                     indexAxis: "y", // Делаем столбцы горизонтальными
                     responsive: true,
                     maintainAspectRatio: true,
@@ -700,49 +720,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                                 },
                             }
                         },
-                    },';
-    } else {
-        echo 'datasets: [{
-                            label: "Текущий период",
-                            data: ' . $departmentNameEn . 'sortedCurrentData,
-                            backgroundColor: "#999B9A", // Корпоративный синий цвет
-                            borderColor: "#999B9A",
-                            borderWidth: 1,
-                            barThickness: 10, // Уменьшаем ширину столбцов
-                        },
-                        {
-                            label: "Предыдущий период",
-                            data: ' . $departmentNameEn . 'sortedPreviousData,
-                            backgroundColor: "#2E5B9B", // Серый цвет
-                            borderColor: "#2E5B9B",
-                            borderWidth: 1,
-                            barThickness: 10, // Уменьшаем ширину столбцов
-                        }
-                    ],
                     },
-                options: {
-                    indexAxis: "y", // Делаем столбцы горизонтальными
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: "Показатели (%)",
-                            },
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: "Вопросы",
-                            },
-                        },
-                    },';
-    }
-
-    echo '  
-                
                     plugins: {
                         legend: {
                             position: "top",
@@ -758,9 +736,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             color: "#000", // Цвет текста
                         },
                     },
-                },';
-    if (count($departmentIds) > 0) {
-        echo '
+                },
                 plugins: [
                     ChartDataLabels,
                     {
@@ -810,7 +786,6 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         }
                     }
                 ],';
-    }
     echo '});';
     if (count($departmentIds) > 0) {
         echo '
