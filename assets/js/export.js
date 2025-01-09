@@ -4,7 +4,9 @@ document.querySelectorAll('.export-to-pdf').forEach(button => {
     button.addEventListener('click', function () {
         const targetId = this.dataset.target; // Получаем ID целевого элемента
         const targetElement = document.querySelector(targetId);
-
+        // Извлекаем текст из кнопки аккордеона
+        const accordionButton = targetElement.previousElementSibling.querySelector('.accordion-button');
+        const pdfTitle = accordionButton ? accordionButton.textContent.trim() : "export";   
         this.style.display = 'none';
         domtoimage.toPng(targetElement)
             .then(dataUrl => {
@@ -19,7 +21,7 @@ document.querySelectorAll('.export-to-pdf').forEach(button => {
 
                 // Добавляем изображение
                 pdf.addImage(dataUrl, "PNG", 0, 0, imgWidth, imgHeight);
-                pdf.save("chart.pdf");
+                pdf.save(`${pdfTitle}.pdf`);
                 this.style.display = 'inline-block';
             })
             .catch(error => {
