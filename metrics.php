@@ -86,6 +86,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $total_promouters = 0; //промоутеры
     $total_critics = 0; //критики
     $total_sum_arr = []; // Для подсчёта по всей компании
+    $total_ov_arr = []; //организационное ОВ компания
+    $total_iv_arr = []; //интеллектуальное ИВ компания
+    $total_ev_arr = []; //эмоциональное ЭВ компания
     $total_count = 0; // Количество всех участников по компании
     // Расчеты для текущего периода
     foreach ($questions as $questionId => $questionText) {
@@ -107,6 +110,15 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         // Всегда собираем данные для всей компании
         for ($i = 3; $i <= 24; $i++) {
             $total_sum_arr[$i] += $item[$i];
+            if ($i == 3 || $i == 10 || $i == 11 || $i == 15 || $i == 16 || $i == 17 || $i == 21 || $i == 24) {
+                $total_ov_arr[$i] += $item[$i];
+            }
+            if ($i == 4 || $i == 8 || $i == 13 || $i == 14 || $i == 18 || $i == 22 || $i == 23) {
+                $total_iv_arr[$i] += $item[$i];
+            }
+            if ($i == 5 || $i == 6 || $i == 7 || $i == 9 || $i == 12 || $i == 19 || $i == 20) {
+                $total_ev_arr[$i] += $item[$i];
+            }
         }
         if ($item[12] >= 0.9) {
             $total_promouters++;
@@ -156,45 +168,49 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $participationRateCompany = $totalEmployeesCompany > 0 ? round(($participantsCompany / $totalEmployeesCompany) * 100, 2) : 0;
     $participationRate = $totalEmployees > 0 ? round(($participants / $totalEmployees) * 100, 2) : 0;
     $people_amount = $count; //КР количество респондентов
-    //echo ("КР " . $people_amount . "<br>");
+    $company_people_amount = $total_count; //КР количество респондентов
     //вовлеченность по всей компании
     $questions_count_total_company = count($total_sum_arr);
     $total_score_company = array_sum($total_sum_arr);
     $involvement_total_company = $total_count > 0 ? round($total_score_company * 100 / $questions_count_total_company / $total_count, 2) : 0;
     //вовлеченность общая ВО=СБ*100/(МБ*КР)
     $questions_count_total = count($sum_arr); //МБ максимальный балл (в строке)
-    //echo ("МБ " . $questions_count_total . "<br>");
+
     $total_score = array_sum($sum_arr); //СБ сумма баллов
-    //echo ("СБ " . $total_score . "<br>");
+
     $max_score = $questions_count_total * $count;
     $involved = round(100 * $total_score / $max_score, 3);
     $involvement_total = round($total_score * 100 / $questions_count_total / $people_amount, 2);
-    //echo ("ВО " . $involvement_total . "<br>");
-    //echo ("___________<br>");
     //вовлеченность организационная ОВ=СБ*100/(МБ/КР)
     $total_score_ov = array_sum($ov_arr); //СБ сумма баллов
-    //echo ("СБ " . $total_score_ov . "<br>");
+    $company_total_score_ov = array_sum($total_ov_arr); //СБ сумма баллов компания
+
     $questions_count_ov = count($ov_arr); //МБ максимальный балл (в строке)
+    $company_questions_count_ov = count($total_ov_arr); //МБ максимальный балл (в строке) компания
     //echo ("МБ " . $questions_count_ov . "<br>");
-    $involvement_org = round($total_score_ov * 100 / $questions_count_ov / $people_amount, 2);
-    //echo ("ОВ " . $involvement_org . "<br>");
-    //echo ("___________<br>");
+    $involvement_org = round($total_score_ov * 100 / $questions_count_ov / $people_amount, 2);//ТЕКУЩЕЕ ПО ДЕПАРТАМЕНТУ
+    $company_involvement_org = round($company_total_score_ov * 100 / $company_questions_count_ov / $company_people_amount, 2);//ТЕКУЩЕЕ ПО КОМПАНИИ
+
     //вовлеченность интеллектуальная ИВ=СБ*100/(МБ*КР)
     $total_score_iv = array_sum($iv_arr); //СБ сумма баллов
-    //echo ("СБ " . $total_score_iv . "<br>");
+    $company_total_score_iv = array_sum($total_iv_arr); //СБ сумма баллов компания
+
     $questions_count_iv = count($iv_arr); //МБ максимальный балл (в строке)
-    //echo ("МБ " . $questions_count_iv . "<br>");
-    $involvement_int = round($total_score_iv * 100 / $questions_count_iv / $people_amount, 2);
-    //echo ("ИВ " . $involvement_int . "<br>");
-    //echo ("___________<br>");
+    $company_questions_count_iv = count($total_iv_arr); //МБ максимальный балл (в строке) компания
+
+    $involvement_int = round($total_score_iv * 100 / $questions_count_iv / $people_amount, 2);//ТЕКУЩЕЕ ПО ДЕПАРТАМЕНТУ
+    $company_involvement_int = round($company_total_score_iv * 100 / $company_questions_count_iv / $company_people_amount, 2);//ТЕКУЩЕЕ ПО КОМПАНИИ
+
     //вовлеченность эмоциональная ЭВ=СБ*100/(МБ*КР)
     $total_score_ev = array_sum($ev_arr); //СБ сумма баллов
-    //echo ("СБ " . $total_score_iv . "<br>");
+    $company_total_score_ev = array_sum($total_ev_arr); //СБ сумма баллов
+
     $questions_count_ev = count($ev_arr); //МБ максимальный балл (в строке)
-    //echo ("МБ " . $questions_count_ev . "<br>");
-    $involvement_emo = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);
-    //echo ("ЭВ " . $involvement_emo . "<br>");
-    //echo ("<br>");
+    $company_questions_count_ev = count($total_ev_arr); //МБ максимальный балл (в строке)
+
+    $involvement_emo = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);//ТЕКУЩЕЕ ПО ДЕПАРТАМЕНТУ
+    $company_involvement_emo = round($company_total_score_ev * 100 / $company_questions_count_ev / $company_people_amount, 2);//ТЕКУЩЕЕ ПО КОМПАНИИ
+
     ${$departmentNameEn . "_curr_avg_arr"} = [];
     foreach ($sum_arr as $key => $item) {
         $questionText = $questions[$key] ?? "Неизвестный вопрос"; // заменяем индекс на текст вопроса
@@ -502,6 +518,19 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
             "ЭВ" => $involvement_emo_prev_prev
         ]
     ];
+    ${$departmentNameEn . "chartDataDepComp"};
+    ${$departmentNameEn . "chartDataDepComp"} = [
+        "company" => [
+            "Компания ОВ" => $company_involvement_org,
+            "Компания ИВ" => $company_involvement_int,
+            "Компания ЭВ" => $company_involvement_emo
+        ],
+        "department" => [
+            "ОВ" => $involvement_org,
+            "ИВ" => $involvement_int,
+            "ЭВ" => $involvement_emo
+        ]
+    ];
     echo '
     <div class="graph' . $departmentNameEn . '1">
         <canvas id="chart' . $departmentNameEn . '1" width="100" height="50"></canvas>
@@ -527,6 +556,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         document.addEventListener("DOMContentLoaded", function() {
             const ' . $departmentNameEn . 'labels = ' . json_encode(array_keys(${$departmentNameEn . "_curr_avg_arr"})) . ';
             const ' . $departmentNameEn . 'chartData = ' . json_encode(${$departmentNameEn . "chartData"}) . ';
+            const ' . $departmentNameEn . 'chartDataDepComp = ' . json_encode(${$departmentNameEn . "chartDataDepComp"}) . ';
             const companyCurrentData=' . json_encode(array_values($company_curr_avg_arr)) . ';
             const ' . $departmentNameEn . 'currentData = ' . json_encode(array_values(${$departmentNameEn . "_curr_avg_arr"})) . ';
             const ' . $departmentNameEn . 'previousData = ' . json_encode(array_values(${$departmentNameEn . "_prev_avg_arr"})) . ';
@@ -567,79 +597,141 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         const ' . $departmentNameEn . 'sortedPrevPreviousData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'prevPreviousValue);
     ';
     }
-
-    echo '
-            const ctx' . $departmentNameEn . '1 = document.getElementById("chart' . $departmentNameEn . '1").getContext("2d");
-            const chart' . $departmentNameEn . '1 = new Chart(ctx' . $departmentNameEn . '1, {
-                type: "bar",
-                data: {
-                    labels: ["ОВ", "ИВ", "ЭВ"], // Метки для каждого критерия
-                    datasets: [
-                        {
-                            label: "Предпредыдущий период",
-                            data: Object.values(' . $departmentNameEn . 'chartData.prev_previous),
-                            backgroundColor: "#2E5B0B", // Цвет для предпредыдущего периода
-                            borderColor: "#2E5B9B",
-                            borderWidth: 1
-                        },
-                        {
-                            label: "Предыдущий период",
-                            data: Object.values(' . $departmentNameEn . 'chartData.previous),
-                            backgroundColor: "#2E5B9B", // Цвет для предыдущего периода
-                            borderColor: "#2E5B9B",
-                            borderWidth: 1
-                        },
-                        {
-                            label: "Текущий период",
-                            data: Object.values(' . $departmentNameEn . 'chartData.current),
-                            backgroundColor: "#999B9A", // Основной цвет столбцов для текущего периода
-                            borderColor: "#999B9A",
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: true
-                        },
-                        datalabels: { // Настройки плагина DataLabels
-                            anchor: "end",
-                            align: "top",
-                            formatter: function(value) {
-                                return value.toFixed(2); // Формат значений
-                            },
-                            color: "#333", // Цвет текста
-                            font: {
-                                weight: "bold"
-                            }
-                        }
-                    },
-                    barPercentage: 0.4, // Уменьшенная ширина столбцов
-                    categoryPercentage: 0.8 // Плотное расположение столбцов
-                },
-                plugins: [
-                    ChartDataLabels,
+    if(count($departmentIds)>0){
+        echo '
+        const ctx' . $departmentNameEn . '1 = document.getElementById("chart' . $departmentNameEn . '1").getContext("2d");
+        const chart' . $departmentNameEn . '1 = new Chart(ctx' . $departmentNameEn . '1, {
+            type: "bar",
+            data: {
+                labels: ["ОВ", "ИВ", "ЭВ"],
+                datasets: [
                     {
-                        id: "corsFix",
-                        beforeDraw: (chart) => {
-                            const canvas = chart.canvas;
-                            canvas.crossOrigin = "anonymous"; // Настройка crossOrigin
+                        label: "Департамент",
+                        data: Object.values(' . $departmentNameEn . 'chartDataDepComp.department),
+                        backgroundColor: "#2E5B9B", // Цвет для департамента
+                        borderColor: "#2E5B9B",
+                        borderWidth: 1
+                    },
+                    {
+                        label: "Компания",
+                        data: Object.values(' . $departmentNameEn . 'chartDataDepComp.company),
+                        backgroundColor: "#999B9A", // Основной цвет столбцов компании
+                        borderColor: "#999B9A",
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    datalabels: { // Настройки плагина DataLabels
+                        anchor: "end",
+                        align: "top",
+                        formatter: function(value) {
+                            return value.toFixed(2); // Формат значений
+                        },
+                        color: "#333", // Цвет текста
+                        font: {
+                            weight: "bold"
                         }
-                    }    
-                ] // Включаем плагин
-            });
+                    }
+                },
+                barPercentage: 0.4, // Уменьшенная ширина столбцов
+                categoryPercentage: 0.8 // Плотное расположение столбцов
+            },
+            plugins: [
+                ChartDataLabels,
+                {
+                    id: "corsFix",
+                    beforeDraw: (chart) => {
+                        const canvas = chart.canvas;
+                        canvas.crossOrigin = "anonymous"; // Настройка crossOrigin
+                    }
+                }    
+            ] // Включаем плагин
+        });';
+    }else{
+        echo '
+        const ctx' . $departmentNameEn . '1 = document.getElementById("chart' . $departmentNameEn . '1").getContext("2d");
+        const chart' . $departmentNameEn . '1 = new Chart(ctx' . $departmentNameEn . '1, {
+            type: "bar",
+            data: {
+                labels: ["ОВ", "ИВ", "ЭВ"], // Метки для каждого критерия
+                datasets: [
+                    {
+                        label: "Предпредыдущий период",
+                        data: Object.values(' . $departmentNameEn . 'chartData.prev_previous),
+                        backgroundColor: "#2E5B0B", // Цвет для предпредыдущего периода
+                        borderColor: "#2E5B9B",
+                        borderWidth: 1
+                    },
+                    {
+                        label: "Предыдущий период",
+                        data: Object.values(' . $departmentNameEn . 'chartData.previous),
+                        backgroundColor: "#2E5B9B", // Цвет для предыдущего периода
+                        borderColor: "#2E5B9B",
+                        borderWidth: 1
+                    },
+                    {
+                        label: "Текущий период",
+                        data: Object.values(' . $departmentNameEn . 'chartData.current),
+                        backgroundColor: "#999B9A", // Основной цвет столбцов для текущего периода
+                        borderColor: "#999B9A",
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    },
+                    datalabels: { // Настройки плагина DataLabels
+                        anchor: "end",
+                        align: "top",
+                        formatter: function(value) {
+                            return value.toFixed(2); // Формат значений
+                        },
+                        color: "#333", // Цвет текста
+                        font: {
+                            weight: "bold"
+                        }
+                    }
+                },
+                barPercentage: 0.4, // Уменьшенная ширина столбцов
+                categoryPercentage: 0.8 // Плотное расположение столбцов
+            },
+            plugins: [
+                ChartDataLabels,
+                {
+                    id: "corsFix",
+                    beforeDraw: (chart) => {
+                        const canvas = chart.canvas;
+                        canvas.crossOrigin = "anonymous"; // Настройка crossOrigin
+                    }
+                }    
+            ] // Включаем плагин
+        });';
+    }
 
-            const ctx' . $departmentNameEn . '2 = document.getElementById("chart' . $departmentNameEn . '2").getContext("2d");';
-
-    echo 'const departmentData = ' . $departmentNameEn . 'sortedCurrentData;
+    echo 'const ctx' . $departmentNameEn . '2 = document.getElementById("chart' . $departmentNameEn . '2").getContext("2d");
+        const departmentData = ' . $departmentNameEn . 'sortedCurrentData;
                 // Генерация цветов для текста вопросов
                 const questionColors' . $departmentNameEn . ' = departmentData.map(value => value < 70 ? "red" : "#000");';
 
