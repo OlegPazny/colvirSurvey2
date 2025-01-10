@@ -534,8 +534,46 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     echo '
     <div class="graph' . $departmentNameEn . '1">
         <canvas id="chart' . $departmentNameEn . '1" width="100" height="50"></canvas>
-    </div>
-    <div class="graph' . $departmentNameEn . '2">
+    </div>';
+    if(count($departmentIds)>0){
+        global $db;
+        $departmentIds_str=implode(",", $departmentIds);
+        $fill_data=mysqli_query($db, "SELECT * FROM `recommendations` WHERE `department_ids`='$departmentIds_str'");
+        if(mysqli_num_rows($fill_data)>0){
+            $fill_data=mysqli_fetch_assoc($fill_data);
+            echo'
+                <div class="card">
+                    <div class="form-group card-body">
+                        <p>
+                            Организационный компонент вовлеченности - показывает, ощущают ли сотрудники сопричастность к компании, ее результатам и продуктам<br>Эмоциональный компонент вовлеченности - определяет, какие эмоции, состояния вызывает у сотрудников рабочий процесс<br>Интеллектуальный компонент вовлеченности - показывает, погружены ли сотрудники в задачи, увлечены ли их выполнением и уровнем сложности
+                        </p>
+                        <label for="conclusion">Вывод</label>
+                        <input type="text" class="form-control" id="conclusion" name="conclusion" value="'.$fill_data['conclusion'].'">
+                        <label for="recommendations">Рекомендации</label>
+                        <input type="text" class="form-control" id="recommendations" name="recommendations" value="'.$fill_data['recommendation'].'">
+                        <input type="button" class="btn btn-primary mt-3 save-btn" name="save" data-department-ids='.$departmentIds_str.' value="Сохранить"/>
+                    </div>
+                </div>
+            ';
+        }else{
+            echo'
+                <div class="card">
+                    <div class="form-group card-body">
+                        <p>
+                            Организационный компонент вовлеченности - показывает, ощущают ли сотрудники сопричастность к компании, ее результатам и продуктам<br>Эмоциональный компонент вовлеченности - определяет, какие эмоции, состояния вызывает у сотрудников рабочий процесс<br>Интеллектуальный компонент вовлеченности - показывает, погружены ли сотрудники в задачи, увлечены ли их выполнением и уровнем сложности
+                        </p>
+                        <label for="conclusion">Вывод</label>
+                        <input type="text" class="form-control" id="conclusion" name="conclusion">
+                        <label for="recommendations">Рекомендации</label>
+                        <input type="text" class="form-control" id="recommendations" name="recommendations">
+                        <input type="button" class="btn btn-primary mt-3 save-btn" name="save" data-department-ids='.$departmentIds_str.' value="Сохранить"/>
+                    </div>
+                </div>
+            ';
+        }
+        
+    }
+    echo '<div class="graph' . $departmentNameEn . '2">
         <canvas id="chart' . $departmentNameEn . '2" width="100" height="50"></canvas>
     </div>';
     if (count($departmentIds) > 0) {
@@ -1054,6 +1092,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Метрики</title>
 </head>
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
@@ -1180,5 +1219,6 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="assets/js/export.js"></script>
+<script src="assets/js/save_rec.js"></script>
 
 </html>
