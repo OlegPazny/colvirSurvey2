@@ -1,7 +1,7 @@
 $(document).ready(function() {
     $(".save-btn").click(function() {
         // Найти ближайший родительский блок (карточку)
-        const parentCard = $(this).closest(".card");
+        const parentCard = $(this).closest(".card-body");
 
         // Найти поля ввода внутри этого блока
         const conclusion = parentCard.find('input[name="conclusion"]').val();

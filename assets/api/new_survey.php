@@ -29,7 +29,7 @@ function updateTables($db) {
     try {
         // Начинаем транзакцию
         $db->autocommit(false);
-
+        $db->query("TRUNCATE TABLE `recommendations`");
         $db->query("TRUNCATE TABLE `prev_prev_results`");
         $db->query("INSERT INTO `prev_prev_results` SELECT * FROM `prev_results`");
         $db->query("TRUNCATE TABLE `prev_results`");

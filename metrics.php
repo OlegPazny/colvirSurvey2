@@ -558,7 +558,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         }else{
             echo'
                 <div class="card">
-                    <div class="form-group card-body">
+                    <div class="form-group card-body px-2">
                         <p>
                             Организационный компонент вовлеченности - показывает, ощущают ли сотрудники сопричастность к компании, ее результатам и продуктам<br>Эмоциональный компонент вовлеченности - определяет, какие эмоции, состояния вызывает у сотрудников рабочий процесс<br>Интеллектуальный компонент вовлеченности - показывает, погружены ли сотрудники в задачи, увлечены ли их выполнением и уровнем сложности
                         </p>
@@ -770,10 +770,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 
     echo 'const ctx' . $departmentNameEn . '2 = document.getElementById("chart' . $departmentNameEn . '2").getContext("2d");
         const departmentData = ' . $departmentNameEn . 'sortedCurrentData;
-                // Генерация цветов для текста вопросов
-                const questionColors' . $departmentNameEn . ' = departmentData.map(value => value < 70 ? "red" : "#000");';
-
-    echo 'const chart' . $departmentNameEn . '2 = new Chart(ctx' . $departmentNameEn . '2, {
+        // Генерация цветов для текста вопросов
+        const questionColors' . $departmentNameEn . ' = departmentData.map(value => value < 70 ? "red" : "#000");
+        const chart' . $departmentNameEn . '2 = new Chart(ctx' . $departmentNameEn . '2, {
                 type: "bar",
                 data: {
                     labels: ' . $departmentNameEn . 'sortedLabels,';
@@ -817,7 +816,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                     },';
     }
     echo '      options: {
-                    indexAxis: "y", // Делаем столбцы горизонтальными
+                    indexAxis: "y",
                     responsive: true,
                     maintainAspectRatio: true,
                     scales: {
@@ -834,21 +833,36 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                                 text: "Вопросы",
                             },
                             ticks: {
-                                callback: function(value, index) {
-                                    // Возвращаем текст с динамическим цветом
-                                    const label = this.getLabelForValue(value);
-                                    const color = questionColors' . $departmentNameEn . '[index] || "#000";
-                                    return `${label}`;
-                                },
                                 font: {
-                                    size: 12,
+                                    size: 10, // Уменьшенный шрифт для меток
                                 },
                                 color: function(context) {
-                                    // Устанавливаем цвет текста
+                                    // Установка цвета текста
                                     const index = context.index;
                                     return questionColors' . $departmentNameEn . '[index] || "#000";
                                 },
-                            }
+                                callback: function(value, index) {
+                                    const label = this.getLabelForValue(value);
+                                    const maxLineLength = 100; // Максимальная длина строки
+                                    const words = label.split(" ");
+                                    let currentLine = "";
+                                    const lines = [];
+
+                                    words.forEach(word => {
+                                        if ((currentLine + word).length > maxLineLength) {
+                                            lines.push(currentLine.trim());
+                                            currentLine = word + " ";
+                                        } else {
+                                            currentLine += word + " ";
+                                        }
+                                    });
+
+                                    if (currentLine) lines.push(currentLine.trim());
+
+                                    // Возвращаем текст с переносом строк
+                                    return lines;
+                                },
+                            },
                         },
                     },
                     plugins: {
@@ -858,12 +872,16 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         tooltip: {
                             enabled: false, // Отключаем подсказки
                         },
-                        // Добавляем значения столбцов справа
                         datalabels: {
                             anchor: "end",
                             align: "end",
-                            formatter: (value) => `${value}%`, // Форматируем отображаемое значение
-                            color: "#000", // Цвет текста
+                            formatter: (value) => `${value}%`,
+                            color: "#000",
+                        },
+                    },
+                    layout: {
+                        padding: {
+                            right: 50, // Добавляем отступ справа
                         },
                     },
                 },
@@ -883,7 +901,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                                 ctx.fillStyle = color;
                                 ctx.textAlign = "right";
                                 ctx.textBaseline = "middle";
-                                ctx.font = "12px Arial";
+                                ctx.font = "10px";
                                 ctx.fillText(label, yAxis.left - 10, yAxis.getPixelForTick(index));
                                 ctx.restore();
                             });
@@ -919,85 +937,129 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     echo '});';
     if (count($departmentIds) > 0) {
         echo '
-                const ctx' . $departmentNameEn . '3 = document.getElementById("chart' . $departmentNameEn . '3").getContext("2d");
-                const labels = ' . json_encode($filteredLabels) . ';
-                const differences = ' . json_encode($filteredDifferences) . ';
-                function generateDistinctColors(numColors) {
-                    const colors = [];
-                    const step = 360 / numColors; // Угол в цветовом круге между соседними цветами
-                    for (let i = 0; i < numColors; i++) {
-                        const hue = (i * step) % 360; // Вычисляем оттенок
-                        colors.push(`hsl(${hue}, 50%, 50%)`); // Цвет в формате HSL (оттенок, насыщенность, яркость)
-                    }
-                    return colors;
-                }
-                function shuffle(array) {
-                    for (let i = array.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1)); // Случайный индекс от 0 до i
-                        [array[i], array[j]] = [array[j], array[i]]; // Обмен значений
-                    }
-                    return array;
-                }
-                const questionColors = shuffle(generateDistinctColors(labels.length));
-                // Сортировка данных по убыванию
-                const sortedData = labels
-                    .map((label, index) => ({
-                        label: label,
-                        value: differences[index]
-                    }))
-                    .sort((a, b) => b.value - a.value); // Сортируем по значениям
-
-                // Перестраиваем данные и метки
-                const sortedLabels = sortedData.map(item => item.label);
-                const sortedDifferences = sortedData.map(item => item.value);
-                new Chart(ctx' . $departmentNameEn . '3, {
-                    type: "bar",
-                    data: {
-                        labels: sortedLabels,
-                        datasets: [{
-                            label: "Разница в положительных ответах (%)",
-                            data: sortedDifferences,
-                            backgroundColor: questionColors,
-                            borderColor: questionColors,
-                            borderWidth: 1,
-                        }]
-                    },
-                    options: {
-                        indexAxis: "y",
-                        scales: {
-                            y: {
-                                beginAtZero: false,
-                                suggestedMin: Math.min(...sortedDifferences) - 5,
-                                suggestedMax: Math.max(...sortedDifferences) + 5,
-                                title: {
-                                    display: true,
-                                    text: "Разница (%)",
-                                },
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: "Вопросы",
-                                },
-                            }
+        const ctx' . $departmentNameEn . '3 = document.getElementById("chart' . $departmentNameEn . '3").getContext("2d");
+        const labels = ' . json_encode($filteredLabels) . ';
+        const differences = ' . json_encode($filteredDifferences) . ';
+        
+        function generateDistinctColors(numColors) {
+            const colors = [];
+            const step = 360 / numColors;
+            for (let i = 0; i < numColors; i++) {
+                const hue = (i * step) % 360;
+                colors.push(`hsl(${hue}, 50%, 50%)`);
+            }
+            return colors;
+        }
+        
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        const questionColors = shuffle(generateDistinctColors(labels.length));
+        
+        const sortedData = labels
+            .map((label, index) => ({
+                label: label,
+                value: differences[index]
+            }))
+            .sort((a, b) => b.value - a.value);
+    
+        const sortedLabels = sortedData.map(item => item.label);
+        const sortedDifferences = sortedData.map(item => item.value);
+        
+        new Chart(ctx' . $departmentNameEn . '3, {
+            type: "bar",
+            data: {
+                labels: sortedLabels,
+                datasets: [{
+                    label: "Разница в положительных ответах (%)",
+                    data: sortedDifferences,
+                    backgroundColor: questionColors,
+                    borderColor: questionColors,
+                    borderWidth: 1,
+                }]
+            },
+            options: {
+                indexAxis: "y",
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        suggestedMin: Math.min(...sortedDifferences) - 5,
+                        suggestedMax: Math.max(...sortedDifferences) + 5,
+                        title: {
+                            display: true,
+                            text: "Вопросы",
                         },
-                        plugins: {
-                            legend: {
-                                display: false,
-                                position: "top",
+                        ticks: {
+                            font: {
+                                size: 10, // Устанавливаем шрифт 8px для labels
                             },
-                        }
-                    },
-                    plugins:[
-                        {
-                            id: "corsFix",
-                            beforeDraw: (chart) => {
-                                const canvas = chart.canvas;
-                                canvas.crossOrigin = "anonymous"; // Настройка crossOrigin
-                            }
+                            callback: function(value, index) {
+                                const label = this.getLabelForValue(value);
+                                // Разбиваем длинный текст на строки по пробелу
+                                const maxLineLength = 120; // Максимальная длина строки
+                                const words = label.split(" ");
+                                let currentLine = "";
+                                const lines = [];
+                                words.forEach(word => {
+                                    if ((currentLine + word).length > maxLineLength) {
+                                        lines.push(currentLine.trim());
+                                        currentLine = word + " ";
+                                    } else {
+                                        currentLine += word + " ";
+                                    }
+                                });
+                                if (currentLine) lines.push(currentLine.trim());
+                                return lines;
+                            },
                         },
-                    ],
-                });';
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Разница (%)",
+                        },
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        enabled: false // Отключаем tooltip
+                    },
+                    legend: {
+                        display: false,
+                    },
+                }
+            },
+            plugins: [
+                {
+                    id: "displayValues",
+                    afterDatasetsDraw: (chart) => {
+                        const ctx = chart.ctx;
+                        chart.data.datasets[0].data.forEach((value, index) => {
+                            const meta = chart.getDatasetMeta(0);
+                            const bar = meta.data[index];
+                            const xPos = bar.x;
+                            const yPos = bar.y;
+    
+                            ctx.save();
+                            ctx.font = "10px"; // Шрифт 12px для процентов
+                            ctx.fillStyle = "#000"; // Чёрный цвет для текста процентов
+                            ctx.textAlign = value < 0 ? "right" : "left";
+                            
+                            // Отображаем проценты рядом со столбцами
+                            const offset = value < 0 ? -10 : 10; // Смещение для отрицательных и положительных значений
+                            ctx.fillText(`${value}%`, xPos + offset, yPos + 4); // Смещаем текст вниз на 4px
+                            ctx.restore();
+                        });
+                    }
+                }
+            ],
+        });';
+    
     } else {
         echo '
                 const departmentLabels = ' . json_encode($departments) . ';
@@ -1100,6 +1162,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
 
 
@@ -1139,7 +1204,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     }
 
     .square * {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        font-family: Roboto;
         color: #2E5B9B;
     }
 </style>
