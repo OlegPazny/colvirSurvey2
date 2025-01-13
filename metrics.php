@@ -586,7 +586,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         </div>';
     }
     echo '</div>
-    <button class="btn btn-primary export-to-pdf" data-target="#collapse' . $departmentNameEn . '">Выгрузить в PDF</button>
+    <button class="btn btn-primary export-to-pdf mb-4 ms-4" data-target="#collapse' . $departmentNameEn . '">Выгрузить в PDF</button>
         </div>
         </div>';
     echo '
@@ -920,7 +920,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             ctx.beginPath();
                             ctx.moveTo(thresholdX, chart.chartArea.top); // Начало линии
                             ctx.lineTo(thresholdX, chart.chartArea.bottom); // Конец линии
-                            ctx.strokeStyle = "red";
+                            ctx.strokeStyle = "#ff9d9d";
                             ctx.lineWidth = 2;
                             ctx.stroke();
                             ctx.restore();
@@ -981,6 +981,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                     backgroundColor: questionColors,
                     borderColor: questionColors,
                     borderWidth: 1,
+                    categoryPercentage: 1.0, // Убираем отступы между категориями
+                    barPercentage: 1.0,
                 }]
             },
             options: {
@@ -1032,7 +1034,12 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                     legend: {
                         display: false,
                     },
-                }
+                },
+                layout: {
+                    padding: {
+                        right: 50, // Добавляем отступ справа
+                    },
+                },
             },
             plugins: [
                 {
@@ -1169,6 +1176,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 
 
 <style>
+    html{
+        font-family: Roboto;
+    }
     td,
     tr,
     th {
