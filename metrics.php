@@ -13,6 +13,9 @@ $data_prev_prev = mysqli_fetch_all($data_prev_prev);
 $employees = mysqli_query($db, "SELECT * FROM departments;");
 $employees = mysqli_fetch_all($employees);
 
+$survey_titles=mysqli_query($db, "SELECT * FROM `survey`");
+$survey_titles=mysqli_fetch_assoc($survey_titles);
+
 $query = "
         SELECT 
             CASE
@@ -75,6 +78,8 @@ function roundToNearestFive($number)
 }
 function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages)
 {
+    global $db;
+
     $sum_arr = []; //общее
     $ov_arr = []; //организационное ОВ
     $iv_arr = []; //интеллектуальное ИВ
@@ -463,13 +468,15 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 </h2>
                 <div id="collapse' . $departmentNameEn . '" class="accordion-collapse collapse" aria-labelledby="heading' . $departmentNameEn . '" data-bs-parent="#accordionExample">
                     <div class="accordion-body">';
+    $survey_titles=mysqli_query($db, "SELECT * FROM `survey`");
+    $survey_titles=mysqli_fetch_assoc($survey_titles);
     echo "<div class='square-block'><div class='square'>
-        <u><h3>Вовлеченность по компании (тек./прош.)</h3></u>
+        <u><h3>Вовлеченность по компании (".$survey_titles['title_current']."/".$survey_titles['title_prev'].")</h3></u>
         <h1>" . $involvement_total_company . "%/" . $involvement_total_company_prev . "%</h1>
     </div>";
     if (count($departmentIds) > 0) {
         echo "<div class='square'>
-            <u><h3>Вовлеченность " . $departmentNameRu . "  (тек./прош.)</h3></u>
+            <u><h3>Вовлеченность " . $departmentNameRu . "  (".$survey_titles['title_current']."/".$survey_titles['title_prev'].")</h3></u>
             <h1>" . $involvement_total . "%/" . $involvement_total_prev . "%</h1>
         </div>";
     }
@@ -490,7 +497,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     </div>";
     } else {
         echo "<div class='square'>
-        <u><h3>eNPS тек./eNPS пред.</h3></u>
+        <u><h3>eNPS ".$survey_titles['title_current']."/eNPS ".$survey_titles['title_prev']."</h3></u>
         <h1>" . $eNPSCompany . "%/" . $eNPSCompany_prev . "%</h1>
     </div>";
     }
@@ -536,7 +543,6 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         <canvas id="chart' . $departmentNameEn . '1" width="100" height="50"></canvas>
     </div>';
     if (count($departmentIds) > 0) {
-        global $db;
         $departmentIds_str = implode(",", $departmentIds);
         $fill_data = mysqli_query($db, "SELECT * FROM `recommendations` WHERE `department_ids`='$departmentIds_str'");
         if (mysqli_num_rows($fill_data) > 0) {
@@ -906,7 +912,10 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             anchor: "end",
                             align: "end",
                             formatter: (value) => `${value}%`,
-                            color: "#000",
+                            color: "#333",
+                            font: {
+                                weight: "bold"
+                            }
                         },
                     },
                     layout: {
@@ -1112,7 +1121,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     
                             ctx.save();
                             ctx.font = "10px"; // Шрифт 12px для процентов
-                            ctx.fillStyle = "#000"; // Чёрный цвет для текста процентов
+                            ctx.fillStyle = "#333"; // Чёрный цвет для текста процентов
                             ctx.textAlign = value < 0 ? "right" : "left";
                             
                             // Отображаем проценты рядом со столбцами
@@ -1137,18 +1146,18 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         labels: departmentLabels,
                         datasets: [
                             {
-                                label: "Текущий период",
-                                data: currentPercentages,
-                                backgroundColor: "rgb(174, 0, 0)",
-                                borderColor: "rgb(174, 0, 0)",
-                                borderWidth: 1
-                            },
-                            {
                                 label: "Предыдущий период",
                                 data: previousPercentages,
                                 backgroundColor: "rgb(0, 88, 165)",
                                 borderColor: "rgb(0, 88, 165)",
-                                borderWidth: 1
+                                borderWidth: 0
+                            },
+                            {
+                                label: "Текущий период",
+                                data: currentPercentages,
+                                backgroundColor: "#999B9A",
+                                borderColor: "#999B9A",
+                                borderWidth: 0
                             }
                         ]
                     },
@@ -1196,6 +1205,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                                 },
                                 font: {
                                     size: 12
+                                },
+                                font: {
+                                    weight: "bold"
                                 },
                                 offset: 5 // Отступ над столбцом
                             }
