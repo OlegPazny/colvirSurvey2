@@ -545,7 +545,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 <div class="card">
                     <div class="form-group card-body">
                         <p>
-                            Организационный компонент вовлеченности - показывает, ощущают ли сотрудники сопричастность к компании, ее результатам и продуктам<br>Эмоциональный компонент вовлеченности - определяет, какие эмоции, состояния вызывает у сотрудников рабочий процесс<br>Интеллектуальный компонент вовлеченности - показывает, погружены ли сотрудники в задачи, увлечены ли их выполнением и уровнем сложности
+                            <b>Организационный</b> компонент вовлеченности - показывает, ощущают ли сотрудники сопричастность к компании, ее результатам и продуктам<br><b>Эмоциональный</b> компонент вовлеченности - определяет, какие эмоции, состояния вызывает у сотрудников рабочий процесс<br><b>Интеллектуальный</b> компонент вовлеченности - показывает, погружены ли сотрудники в задачи, увлечены ли их выполнением и уровнем сложности
                         </p>
                         <label for="conclusion">Вывод</label>
                         <input type="text" class="form-control" id="conclusion" name="conclusion" value="' . $fill_data['conclusion'] . '">
@@ -1289,7 +1289,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         text-align: center;
         justify-content: center;
     }
-
+    .square h1{
+        font-weight: bold !important;
+    }
     .square * {
         font-family: Roboto;
         color: #2E5B9B;

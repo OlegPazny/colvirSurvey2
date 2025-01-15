@@ -7,36 +7,45 @@ document.querySelectorAll('.export-to-pdf').forEach(button => {
         const accordionButton = targetElement.previousElementSibling.querySelector('.accordion-button');
         const pdfTitle = accordionButton ? accordionButton.textContent.trim() : "export";
         const formGroup = targetElement.querySelector('.form-group.card-body');
-        const textInputs = formGroup.querySelectorAll('input[type="text"]');
-        const buttonInputs = formGroup.querySelectorAll('input[type="button"]');
+        var isFormGroup = false;
+        let textInputs;
+        let buttonInputs;
+        if (formGroup !== null) {
+            isFormGroup = true;
+            textInputs = formGroup.querySelectorAll('input[type="text"]');
+            buttonInputs = formGroup.querySelectorAll('input[type="button"]');
+        }
+        console.log(isFormGroup);
+        if (isFormGroup == true) {
+            // Создаем временные элементы
+            const tempTexts = Array.from(textInputs).map(input => {
+                const label = input.previousElementSibling;
+                const tempSpan = document.createElement('div');
+                tempSpan.textContent = input.value;
+                tempSpan.className = 'temp-text';
 
-        // Создаем временные элементы
-        const tempTexts = Array.from(textInputs).map(input => {
-            const label = input.previousElementSibling;
-            const tempSpan = document.createElement('div');
-            tempSpan.textContent = input.value;
-            tempSpan.className = 'temp-text';
+                if (label && label.tagName === 'LABEL') {
+                    label.after(tempSpan);
+                } else {
+                    input.parentElement.appendChild(tempSpan);
+                }
 
-            if (label && label.tagName === 'LABEL') {
-                label.after(tempSpan);
-            } else {
-                input.parentElement.appendChild(tempSpan);
-            }
+                input.style.display = 'none';
+                return { input, tempSpan };
+            });
 
-            input.style.display = 'none';
-            return { input, tempSpan };
-        });
+            // Скрываем кнопки
+            buttonInputs.forEach(button => {
+                button.style.display = 'none';
+            });
 
-        // Скрываем кнопки
-        buttonInputs.forEach(button => {
-            button.style.display = 'none';
-        });
+            formGroup.querySelectorAll('label').forEach(label => {
+                label.style.fontWeight = 'bold';
+            });
+        }
 
         this.style.display = 'none';
 
-        formGroup.querySelectorAll('label').forEach(label => {
-            label.style.fontWeight = 'bold';
-        });
         const dpi = 200; // Устанавливаем плотность точек
         const scale = dpi / 96; // Масштабируем относительно стандартного DPI
         domtoimage.toPng(targetElement, {
@@ -67,38 +76,42 @@ document.querySelectorAll('.export-to-pdf').forEach(button => {
                 pdf.addImage(dataUrl, "PNG", 0, 0, imgWidth, imgHeight);
                 pdf.save(`${pdfTitle}.pdf`);
 
-                // Восстанавливаем элементы
-                tempTexts.forEach(({ input, tempSpan }) => {
-                    tempSpan.remove();
-                    input.style.display = '';
-                });
+                if (isFormGroup == true) {
+                    // Восстанавливаем элементы
+                    tempTexts.forEach(({ input, tempSpan }) => {
+                        tempSpan.remove();
+                        input.style.display = '';
+                    });
 
-                buttonInputs.forEach(button => {
-                    button.style.display = '';
-                });
+                    buttonInputs.forEach(button => {
+                        button.style.display = '';
+                    });
 
-                formGroup.querySelectorAll('label').forEach(label => {
-                    label.style.fontWeight = '';
-                });
+                    formGroup.querySelectorAll('label').forEach(label => {
+                        label.style.fontWeight = '';
+                    });
+                }
 
                 this.style.display = 'inline-block';
             })
             .catch(error => {
                 console.error("Ошибка при создании PDF:", error);
 
-                // Восстанавливаем элементы в случае ошибки
-                tempTexts.forEach(({ input, tempSpan }) => {
-                    tempSpan.remove();
-                    input.style.display = '';
-                });
+                if (isFormGroup == true) {
+                    // Восстанавливаем элементы в случае ошибки
+                    tempTexts.forEach(({ input, tempSpan }) => {
+                        tempSpan.remove();
+                        input.style.display = '';
+                    });
 
-                buttonInputs.forEach(button => {
-                    button.style.display = '';
-                });
+                    buttonInputs.forEach(button => {
+                        button.style.display = '';
+                    });
 
-                formGroup.querySelectorAll('label').forEach(label => {
-                    label.style.fontWeight = '';
-                });
+                    formGroup.querySelectorAll('label').forEach(label => {
+                        label.style.fontWeight = '';
+                    });
+                }
 
                 this.style.display = 'inline-block';
             });
