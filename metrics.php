@@ -972,24 +972,43 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         const differences = ' . json_encode($filteredDifferences) . ';
         
         function generateDistinctColors(numColors) {
+            // Основные цвета радуги в формате HSL (по порядку: красный, оранжевый, желтый, зеленый, голубой, синий, фиолетовый)
+            const rainbowColors = [
+                "hsl(0, 100%, 50%)",    // Красный
+                "hsl(30, 100%, 50%)",   // Оранжевый
+                "hsl(52, 100%, 50%)",   // Желтый
+                "hsl(105, 100%, 34%)",  // Зеленый
+                "hsl(202, 100%, 66%)",  // Голубой
+                "hsl(240, 100%, 50%)",  // Синий
+                "hsl(270, 100%, 50%)"   // Фиолетовый
+            ];
+
             const colors = [];
-            const step = 360 / numColors;
+            const rainbowCount = rainbowColors.length;
+
             for (let i = 0; i < numColors; i++) {
-                const hue = (i * step) % 360;
-                colors.push(`hsl(${hue}, 50%, 50%)`);
+                // Индекс в массиве базовых цветов радуги
+                const baseIndex = i % rainbowCount;
+
+                // Номер цикла для увеличения яркости (каждый цикл добавляет более светлые оттенки)
+                const brightnessShift = Math.floor(i / rainbowCount) * 20;
+
+                // Получаем цвет из радуги и корректируем яркость
+                const baseColor = rainbowColors[baseIndex];
+                const match = baseColor.match(/hsl\((\d+), (\d+)%, (\d+)%\)/);
+
+                if (match) {
+                    const [_, hue, saturation, lightness] = match.map(Number);
+                    const newLightness = Math.min(lightness + brightnessShift, 80); // Ограничиваем яркость до 80%
+                    colors.push(`hsl(${hue}, ${saturation}%, ${newLightness}%)`);
+                }
             }
+
             return colors;
         }
+
         
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-        
-        const questionColors = shuffle(generateDistinctColors(labels.length));
+        const questionColors = generateDistinctColors(labels.length);
         
         const sortedData = labels
             .map((label, index) => ({
@@ -1215,6 +1234,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@2/dist/dom-to-image-more.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -1266,6 +1286,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         width: fit-content;
         padding: 15px;
         align-items: center;
+        text-align: center;
+        justify-content: center;
     }
 
     .square * {
