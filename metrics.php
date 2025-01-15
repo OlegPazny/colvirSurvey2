@@ -63,9 +63,9 @@ $questions = [
     17 => "Я знаю, по каким критериям оценивается моя работа",
     18 => "В компании созданы все условия, чтобы я качественно выполнял свою работу",
     19 => "Если я работаю хорошо и старательно, руководитель положительно отзывается обо мне",
-    20 => "Руководитель ценит мои заслуги, отмечает успехи",
-    21 => "Руководитель и коллеги заинтересованы в том, чтобы я работал лучше",
-    22 => "Ко мне обращаются за советом коллеги и/или руководитель",
+    20 => "Руководитель ценит мои заслуги, отмечает успехи (непосредственный руководитель, например TeamLeader для программиста, Специалиста по тестированию и тд)",
+    21 => "Мой непосредственный руководитель и коллеги заинтересованы в том, чтобы я работал лучше",
+    22 => "Ко мне часто обращаются за советом коллеги и\или руководитель",
     23 => "Я обучаюсь в процессе работы, узнаю много нового, мне помогают справиться с интересными задачами",
     24 => "Я понимаю, что моя работа важна для других и доволен, что тружусь в компании"
 ];
@@ -188,8 +188,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $questions_count_ov = count($ov_arr); //МБ максимальный балл (в строке)
     $company_questions_count_ov = count($total_ov_arr); //МБ максимальный балл (в строке) компания
     //echo ("МБ " . $questions_count_ov . "<br>");
-    $involvement_org = round($total_score_ov * 100 / $questions_count_ov / $people_amount, 2);//ТЕКУЩЕЕ ПО ДЕПАРТАМЕНТУ
-    $company_involvement_org = round($company_total_score_ov * 100 / $company_questions_count_ov / $company_people_amount, 2);//ТЕКУЩЕЕ ПО КОМПАНИИ
+    $involvement_org = round($total_score_ov * 100 / $questions_count_ov / $people_amount, 2); //ТЕКУЩЕЕ ПО ДЕПАРТАМЕНТУ
+    $company_involvement_org = round($company_total_score_ov * 100 / $company_questions_count_ov / $company_people_amount, 2); //ТЕКУЩЕЕ ПО КОМПАНИИ
 
     //вовлеченность интеллектуальная ИВ=СБ*100/(МБ*КР)
     $total_score_iv = array_sum($iv_arr); //СБ сумма баллов
@@ -198,8 +198,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $questions_count_iv = count($iv_arr); //МБ максимальный балл (в строке)
     $company_questions_count_iv = count($total_iv_arr); //МБ максимальный балл (в строке) компания
 
-    $involvement_int = round($total_score_iv * 100 / $questions_count_iv / $people_amount, 2);//ТЕКУЩЕЕ ПО ДЕПАРТАМЕНТУ
-    $company_involvement_int = round($company_total_score_iv * 100 / $company_questions_count_iv / $company_people_amount, 2);//ТЕКУЩЕЕ ПО КОМПАНИИ
+    $involvement_int = round($total_score_iv * 100 / $questions_count_iv / $people_amount, 2); //ТЕКУЩЕЕ ПО ДЕПАРТАМЕНТУ
+    $company_involvement_int = round($company_total_score_iv * 100 / $company_questions_count_iv / $company_people_amount, 2); //ТЕКУЩЕЕ ПО КОМПАНИИ
 
     //вовлеченность эмоциональная ЭВ=СБ*100/(МБ*КР)
     $total_score_ev = array_sum($ev_arr); //СБ сумма баллов
@@ -208,8 +208,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $questions_count_ev = count($ev_arr); //МБ максимальный балл (в строке)
     $company_questions_count_ev = count($total_ev_arr); //МБ максимальный балл (в строке)
 
-    $involvement_emo = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2);//ТЕКУЩЕЕ ПО ДЕПАРТАМЕНТУ
-    $company_involvement_emo = round($company_total_score_ev * 100 / $company_questions_count_ev / $company_people_amount, 2);//ТЕКУЩЕЕ ПО КОМПАНИИ
+    $involvement_emo = round($total_score_ev * 100 / $questions_count_ev / $people_amount, 2); //ТЕКУЩЕЕ ПО ДЕПАРТАМЕНТУ
+    $company_involvement_emo = round($company_total_score_ev * 100 / $company_questions_count_ev / $company_people_amount, 2); //ТЕКУЩЕЕ ПО КОМПАНИИ
 
     ${$departmentNameEn . "_curr_avg_arr"} = [];
     foreach ($sum_arr as $key => $item) {
@@ -535,28 +535,28 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     <div class="graph' . $departmentNameEn . '1">
         <canvas id="chart' . $departmentNameEn . '1" width="100" height="50"></canvas>
     </div>';
-    if(count($departmentIds)>0){
+    if (count($departmentIds) > 0) {
         global $db;
-        $departmentIds_str=implode(",", $departmentIds);
-        $fill_data=mysqli_query($db, "SELECT * FROM `recommendations` WHERE `department_ids`='$departmentIds_str'");
-        if(mysqli_num_rows($fill_data)>0){
-            $fill_data=mysqli_fetch_assoc($fill_data);
-            echo'
+        $departmentIds_str = implode(",", $departmentIds);
+        $fill_data = mysqli_query($db, "SELECT * FROM `recommendations` WHERE `department_ids`='$departmentIds_str'");
+        if (mysqli_num_rows($fill_data) > 0) {
+            $fill_data = mysqli_fetch_assoc($fill_data);
+            echo '
                 <div class="card">
                     <div class="form-group card-body">
                         <p>
                             Организационный компонент вовлеченности - показывает, ощущают ли сотрудники сопричастность к компании, ее результатам и продуктам<br>Эмоциональный компонент вовлеченности - определяет, какие эмоции, состояния вызывает у сотрудников рабочий процесс<br>Интеллектуальный компонент вовлеченности - показывает, погружены ли сотрудники в задачи, увлечены ли их выполнением и уровнем сложности
                         </p>
                         <label for="conclusion">Вывод</label>
-                        <input type="text" class="form-control" id="conclusion" name="conclusion" value="'.$fill_data['conclusion'].'">
+                        <input type="text" class="form-control" id="conclusion" name="conclusion" value="' . $fill_data['conclusion'] . '">
                         <label for="recommendations">Рекомендации</label>
-                        <input type="text" class="form-control" id="recommendations" name="recommendations" value="'.$fill_data['recommendation'].'">
-                        <input type="button" class="btn btn-primary mt-3 save-btn" name="save" data-department-ids='.$departmentIds_str.' value="Сохранить"/>
+                        <input type="text" class="form-control" id="recommendations" name="recommendations" value="' . $fill_data['recommendation'] . '">
+                        <input type="button" class="btn btn-primary mt-3 save-btn" name="save" data-department-ids=' . $departmentIds_str . ' value="Сохранить"/>
                     </div>
                 </div>
             ';
-        }else{
-            echo'
+        } else {
+            echo '
                 <div class="card">
                     <div class="form-group card-body px-2">
                         <p>
@@ -566,12 +566,11 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         <input type="text" class="form-control" id="conclusion" name="conclusion">
                         <label for="recommendations">Рекомендации</label>
                         <input type="text" class="form-control" id="recommendations" name="recommendations">
-                        <input type="button" class="btn btn-primary mt-3 save-btn" name="save" data-department-ids='.$departmentIds_str.' value="Сохранить"/>
+                        <input type="button" class="btn btn-primary mt-3 save-btn" name="save" data-department-ids=' . $departmentIds_str . ' value="Сохранить"/>
                     </div>
                 </div>
             ';
         }
-        
     }
     echo '<div class="graph' . $departmentNameEn . '2">
         <canvas id="chart' . $departmentNameEn . '2" width="100" height="50"></canvas>
@@ -635,7 +634,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         const ' . $departmentNameEn . 'sortedPrevPreviousData = ' . $departmentNameEn . 'sortedData.map(item => item.' . $departmentNameEn . 'prevPreviousValue);
     ';
     }
-    if(count($departmentIds)>0){
+    if ($departmentIds == [18]) {
         echo '
         const ctx' . $departmentNameEn . '1 = document.getElementById("chart' . $departmentNameEn . '1").getContext("2d");
         const chart' . $departmentNameEn . '1 = new Chart(ctx' . $departmentNameEn . '1, {
@@ -644,18 +643,18 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 labels: ["ОВ", "ИВ", "ЭВ"],
                 datasets: [
                     {
-                        label: "Департамент",
+                        label: "Руководители",
                         data: Object.values(' . $departmentNameEn . 'chartDataDepComp.department),
                         backgroundColor: "#2E5B9B", // Цвет для департамента
                         borderColor: "#2E5B9B",
-                        borderWidth: 1
+                        borderWidth: 0
                     },
                     {
                         label: "Компания",
                         data: Object.values(' . $departmentNameEn . 'chartDataDepComp.company),
                         backgroundColor: "#999B9A", // Основной цвет столбцов компании
                         borderColor: "#999B9A",
-                        borderWidth: 1
+                        borderWidth: 0
                     }
                 ]
             },
@@ -664,7 +663,18 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 maintainAspectRatio: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            display: false,
+                        },
+                        ticks: {
+                            display: false,
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                        }
                     }
                 },
                 plugins: {
@@ -697,7 +707,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 }    
             ] // Включаем плагин
         });';
-    }else{
+    } else {
         echo '
         const ctx' . $departmentNameEn . '1 = document.getElementById("chart' . $departmentNameEn . '1").getContext("2d");
         const chart' . $departmentNameEn . '1 = new Chart(ctx' . $departmentNameEn . '1, {
@@ -708,23 +718,23 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                     {
                         label: "Предпредыдущий период",
                         data: Object.values(' . $departmentNameEn . 'chartData.prev_previous),
-                        backgroundColor: "#2E5B0B", // Цвет для предпредыдущего периода
-                        borderColor: "#2E5B9B",
-                        borderWidth: 1
+                        backgroundColor: "#6e9cde", // Цвет для предпредыдущего периода
+                        borderColor: "#6e9cde",
+                        borderWidth: 0
                     },
                     {
                         label: "Предыдущий период",
                         data: Object.values(' . $departmentNameEn . 'chartData.previous),
                         backgroundColor: "#2E5B9B", // Цвет для предыдущего периода
                         borderColor: "#2E5B9B",
-                        borderWidth: 1
+                        borderWidth: 0
                     },
                     {
                         label: "Текущий период",
                         data: Object.values(' . $departmentNameEn . 'chartData.current),
                         backgroundColor: "#999B9A", // Основной цвет столбцов для текущего периода
                         borderColor: "#999B9A",
-                        borderWidth: 1
+                        borderWidth: 0
                     }
                 ]
             },
@@ -733,7 +743,18 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 maintainAspectRatio: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        grid: {
+                            display: false,
+                        },
+                        ticks: {
+                            display: false,
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                        }
                     }
                 },
                 plugins: {
@@ -823,13 +844,22 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         x: {
                             beginAtZero: true,
                             title: {
-                                display: true,
+                                display: false,
                                 text: "Показатели (%)",
                             },
+                            grid: {
+                                display: false,
+                            },
+                            ticks: {
+                                display: false,
+                            }
                         },
                         y: {
+                            grid: {
+                                display: false
+                            },
                             title: {
-                                display: true,
+                                display: false,
                                 text: "Вопросы",
                             },
                             ticks: {
@@ -989,11 +1019,14 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 indexAxis: "y",
                 scales: {
                     y: {
+                        grid: {
+                            display: false,
+                        },
                         beginAtZero: false,
                         suggestedMin: Math.min(...sortedDifferences) - 5,
                         suggestedMax: Math.max(...sortedDifferences) + 5,
                         title: {
-                            display: true,
+                            display: false,
                             text: "Вопросы",
                         },
                         ticks: {
@@ -1021,8 +1054,14 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         },
                     },
                     x: {
+                        grid: {
+                            display: false,
+                        },
+                        ticks: {
+                            display: false,
+                        },
                         title: {
-                            display: true,
+                            display: false,
                             text: "Разница (%)",
                         },
                     }
@@ -1066,7 +1105,6 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 }
             ],
         });';
-    
     } else {
         echo '
                 const departmentLabels = ' . json_encode($departments) . ';
@@ -1102,14 +1140,23 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             y: {
                                 beginAtZero: true,
                                 title: {
-                                    display: true,
+                                    display: false,
                                     text: "Процент участия (%)"
+                                },
+                                grid: {
+                                    display: false,
+                                },
+                                ticks: {
+                                    display: false,
                                 }
                             },
                             x: {
                                 title: {
-                                    display: true,
+                                    display: false,
                                     text: "Подразделения"
+                                },
+                                grid: {
+                                    display: false,
                                 }
                             }
                         },
@@ -1161,6 +1208,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Метрики</title>
 </head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -1168,17 +1216,24 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 
 <style>
-    html{
-        font-family: Roboto;
+    @font-face {
+        font-family: 'Roboto';
+        src: url('assets/fonts/Roboto-Regular.ttf') format('truetype');
+        font-weight: normal;
     }
+    @font-face {
+        font-family: 'Roboto';
+        src: url('assets/fonts/Roboto-Bold.ttf') format('truetype');
+        font-weight: bold;
+    }
+    * {
+        font-family: Roboto !important;
+    }
+
     td,
     tr,
     th {
@@ -1293,7 +1348,11 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script type="module" src="assets/fonts/Roboto-normal.js"></script>
 <script type="module" src="assets/js/export.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.js" integrity="sha512-/fgTphwXa3lqAhN+I8gG8AvuaTErm1YxpUjbdCvwfTMyv8UZnFyId7ft5736xQ6CyQN4Nzr21lBuWWA9RTCXCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- <script type="module" src="assets/js/export2.js"></script> -->
 <script src="assets/js/save_rec.js"></script>
 
 </html>
