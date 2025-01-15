@@ -39,6 +39,10 @@ function updateTables($db) {
         $db->query("UPDATE `departments` SET `prev_prev` = `prev`");
         $db->query("UPDATE `departments` SET `prev` = `current`");
         $db->query("UPDATE `departments` SET `current` = NULL");
+        $db->query("UPDATE `survey` SET `title_prev_prev` = NULL");
+        $db->query("UPDATE `survey` SET `title_prev_prev` = `title_prev`");
+        $db->query("UPDATE `survey` SET `title_prev` = `title_current`");
+        $db->query("UPDATE `survey` SET `title_current` = NULL");
 
         // Подтверждаем изменения
         $db->commit();

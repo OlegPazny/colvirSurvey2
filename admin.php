@@ -35,7 +35,7 @@
             <form id="surveyForm">
                 <div class="form-group">
                     <label for="surveyTitle">Введите название исследования</label>
-                    <input type="text" class="form-control" id="surveyTitle" name="surveyTitle" placeholder="Например: Опрос за 2024 год" <?php if(mysqli_num_rows($survey)>0){$survey=mysqli_fetch_assoc($survey); echo "value='".$survey['title']."'";}?> required>
+                    <input type="text" class="form-control" id="surveyTitle" name="surveyTitle" placeholder="Например: Опрос за 2024 год" <?php if(mysqli_num_rows($survey)>0){$survey=mysqli_fetch_assoc($survey); echo "value='".$survey['title_current']."'";}?> required>
                 </div>
                 <div class="form-group">
                     <label for="excelFile">Загрузите количество сотрудников</label>

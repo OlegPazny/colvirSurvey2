@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Сохранение названия исследования
         $title = $_POST['surveyTitle'];
         mysqli_query($db, "TRUNCATE TABLE `survey`");
-        $stmt = $db->prepare("INSERT INTO survey (title) VALUES (?)");
+        $stmt = $db->prepare("INSERT INTO survey (title_current) VALUES (?)");
         $stmt->bind_param("s", $title);
         $stmt->execute();
         unset($_POST['surveyTitle']);
