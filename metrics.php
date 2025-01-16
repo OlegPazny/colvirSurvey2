@@ -510,19 +510,19 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     ${$departmentNameEn . "chartData"};
     ${$departmentNameEn . "chartData"} = [
         "current" => [
-            "ОВ" => $involvement_org,
-            "ИВ" => $involvement_int,
-            "ЭВ" => $involvement_emo
+            "ov" => $involvement_org,
+            "iv" => $involvement_int,
+            "ev" => $involvement_emo
         ],
         "previous" => [
-            "ОВ" => $involvement_org_prev,
-            "ИВ" => $involvement_int_prev,
-            "ЭВ" => $involvement_emo_prev
+            "ov" => $involvement_org_prev,
+            "iv" => $involvement_int_prev,
+            "ev" => $involvement_emo_prev
         ],
         "prev_previous" => [
-            "ОВ" => $involvement_org_prev_prev,
-            "ИВ" => $involvement_int_prev_prev,
-            "ЭВ" => $involvement_emo_prev_prev
+            "ov" => $involvement_org_prev_prev,
+            "iv" => $involvement_int_prev_prev,
+            "ev" => $involvement_emo_prev_prev
         ]
     ];
     ${$departmentNameEn . "chartDataDepComp"};
@@ -719,25 +719,37 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         const chart' . $departmentNameEn . '1 = new Chart(ctx' . $departmentNameEn . '1, {
             type: "bar",
             data: {
-                labels: ["ОВ", "ИВ", "ЭВ"], // Метки для каждого критерия
+                labels: ["'.$survey_titles['title_prev_prev'].'", "'.$survey_titles['title_prev'].'", "'.$survey_titles['title_current'].'"], // Метки для каждого критерия
                 datasets: [
                     {
-                        label: "Предпредыдущий период",
-                        data: Object.values(' . $departmentNameEn . 'chartData.prev_previous),
+                        label: "ОВ",
+                        data: [
+                            ' . $departmentNameEn . 'chartData.prev_previous.ov,
+                            ' . $departmentNameEn . 'chartData.previous.ov,
+                            ' . $departmentNameEn . 'chartData.current.ov
+                        ],
                         backgroundColor: "#6e9cde", // Цвет для предпредыдущего периода
                         borderColor: "#6e9cde",
                         borderWidth: 0
                     },
                     {
-                        label: "Предыдущий период",
-                        data: Object.values(' . $departmentNameEn . 'chartData.previous),
+                        label: "ИВ",
+                        data: [
+                            ' . $departmentNameEn . 'chartData.prev_previous.iv,
+                            ' . $departmentNameEn . 'chartData.previous.iv,
+                            ' . $departmentNameEn . 'chartData.current.iv
+                        ],
                         backgroundColor: "#2E5B9B", // Цвет для предыдущего периода
                         borderColor: "#2E5B9B",
                         borderWidth: 0
                     },
                     {
-                        label: "Текущий период",
-                        data: Object.values(' . $departmentNameEn . 'chartData.current),
+                        label: "ЭВ",
+                        data: [
+                            ' . $departmentNameEn . 'chartData.prev_previous.ev,
+                            ' . $departmentNameEn . 'chartData.previous.ev,
+                            ' . $departmentNameEn . 'chartData.current.ev
+                        ],
                         backgroundColor: "#999B9A", // Основной цвет столбцов для текущего периода
                         borderColor: "#999B9A",
                         borderWidth: 0
@@ -773,7 +785,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         formatter: function(value) {
                             return value.toFixed(2); // Формат значений
                         },
-                        color: "#333", // Цвет текста
+                        color: "#d0d0d0", // Цвет текста
                         font: {
                             weight: "bold"
                         }
@@ -875,7 +887,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                                 color: function(context) {
                                     // Установка цвета текста
                                     const index = context.index;
-                                    return questionColors' . $departmentNameEn . '[index] || "#000";
+                                    return questionColors' . $departmentNameEn . '[index] || "#d0d0d0";
                                 },
                                 callback: function(value, index) {
                                     const label = this.getLabelForValue(value);
@@ -912,7 +924,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             anchor: "end",
                             align: "end",
                             formatter: (value) => `${value}%`,
-                            color: "#333",
+                            color: "#d0d0d0",
                             font: {
                                 weight: "bold"
                             }
@@ -934,7 +946,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 
                             yAxis.ticks.forEach((tick, index) => {
                                 const label = yAxis.getLabelForValue(tick.value);
-                                const color = questionColors' . $departmentNameEn . '[index] || "#000";
+                                const color = questionColors' . $departmentNameEn . '[index] || "#d0d0d0";
 
                                 ctx.save();
                                 ctx.fillStyle = color;
@@ -1059,8 +1071,9 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                         },
                         ticks: {
                             font: {
-                                size: 10, // Устанавливаем шрифт 8px для labels
+                                size: 10, // Устанавливаем шрифт 8px для labels 
                             },
+                            color: "#000",
                             callback: function(value, index) {
                                 const label = this.getLabelForValue(value);
                                 // Разбиваем длинный текст на строки по пробелу
@@ -1120,8 +1133,8 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                             const yPos = bar.y;
     
                             ctx.save();
-                            ctx.font = "10px"; // Шрифт 12px для процентов
-                            ctx.fillStyle = "#333"; // Чёрный цвет для текста процентов
+                            ctx.font = "bold 10px Roboto"; // Шрифт 12px для процентов
+                            ctx.fillStyle = "#d0d0d0"; // Чёрный цвет для текста процентов
                             ctx.textAlign = value < 0 ? "right" : "left";
                             
                             // Отображаем проценты рядом со столбцами
