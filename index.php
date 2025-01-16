@@ -43,7 +43,6 @@ function radioLine($question, $qnum)
 <body>
     <div class="container mt-5">
         <form id="surveyForm" method="POST">
-
             <!-- Section 1 -->
             <div class="survey-section">
                 <div class="survey-header">Вводная информация</div>
@@ -51,7 +50,7 @@ function radioLine($question, $qnum)
                 <div class="mb-3">
                     <label for="q1" class="form-label required">В каком подразделении Вы работаете?</label>
                     <select class="form-select" id="q1" name="q1" required>
-                        <option selected disabled>Выберите подразделение</option>
+                        <option value="" selected disabled>Выберите подразделение</option>
                         <?php
                         foreach ($departments as $department) {
                             echo ("<option value='" . $department[0] . "'>" . $department[1] . "</option>");
@@ -140,7 +139,10 @@ function radioLine($question, $qnum)
                     </div>
                 </div>
             </div>
-
+            <div class="survey-section">
+                <div class="survey-header">Ваши комментарии и предложения</div>
+                <textarea class="form-control" id="comment" rows="3" name="comment"></textarea>
+            </div>
             <!-- Submit Section -->
             <div class="survey-section">
                 <div class="d-grid">
