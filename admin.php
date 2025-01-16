@@ -1,4 +1,13 @@
 <?php
+    session_start();
+    if($_SESSION['loggedin']!==true){
+        header("Location: auth.php");
+        die();
+    }
+    if($_SESSION['userType']!=="admin"){
+        header("Location: index.php");
+        die();
+    }
     require_once "assets/api/db_connect.php";
 
     $deps=mysqli_query($db, "SELECT * FROM `departments`");

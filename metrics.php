@@ -1,4 +1,9 @@
 <?php
+session_start();
+if ($_SESSION['userType'] !== "admin") {
+    header("Location: index.php");
+    die();
+}
 require_once "assets/api/db_connect.php";
 
 $data = mysqli_query($db, "SELECT * FROM `results`");
@@ -13,8 +18,8 @@ $data_prev_prev = mysqli_fetch_all($data_prev_prev);
 $employees = mysqli_query($db, "SELECT * FROM departments;");
 $employees = mysqli_fetch_all($employees);
 
-$survey_titles=mysqli_query($db, "SELECT * FROM `survey`");
-$survey_titles=mysqli_fetch_assoc($survey_titles);
+$survey_titles = mysqli_query($db, "SELECT * FROM `survey`");
+$survey_titles = mysqli_fetch_assoc($survey_titles);
 
 $query = "
         SELECT 
@@ -468,15 +473,15 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
                 </h2>
                 <div id="collapse' . $departmentNameEn . '" class="accordion-collapse collapse" aria-labelledby="heading' . $departmentNameEn . '" data-bs-parent="#accordionExample">
                     <div class="accordion-body">';
-    $survey_titles=mysqli_query($db, "SELECT * FROM `survey`");
-    $survey_titles=mysqli_fetch_assoc($survey_titles);
+    $survey_titles = mysqli_query($db, "SELECT * FROM `survey`");
+    $survey_titles = mysqli_fetch_assoc($survey_titles);
     echo "<div class='square-block'><div class='square'>
-        <u><h3>Вовлеченность по компании (".$survey_titles['title_current']."/".$survey_titles['title_prev'].")</h3></u>
+        <u><h3>Вовлеченность по компании (" . $survey_titles['title_current'] . "/" . $survey_titles['title_prev'] . ")</h3></u>
         <h1>" . $involvement_total_company . "%/" . $involvement_total_company_prev . "%</h1>
     </div>";
     if (count($departmentIds) > 0) {
         echo "<div class='square'>
-            <u><h3>Вовлеченность " . $departmentNameRu . "  (".$survey_titles['title_current']."/".$survey_titles['title_prev'].")</h3></u>
+            <u><h3>Вовлеченность " . $departmentNameRu . "  (" . $survey_titles['title_current'] . "/" . $survey_titles['title_prev'] . ")</h3></u>
             <h1>" . $involvement_total . "%/" . $involvement_total_prev . "%</h1>
         </div>";
     }
@@ -497,7 +502,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     </div>";
     } else {
         echo "<div class='square'>
-        <u><h3>eNPS ".$survey_titles['title_current']."/eNPS ".$survey_titles['title_prev']."</h3></u>
+        <u><h3>eNPS " . $survey_titles['title_current'] . "/eNPS " . $survey_titles['title_prev'] . "</h3></u>
         <h1>" . $eNPSCompany . "%/" . $eNPSCompany_prev . "%</h1>
     </div>";
     }
@@ -719,7 +724,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         const chart' . $departmentNameEn . '1 = new Chart(ctx' . $departmentNameEn . '1, {
             type: "bar",
             data: {
-                labels: ["'.$survey_titles['title_prev_prev'].'", "'.$survey_titles['title_prev'].'", "'.$survey_titles['title_current'].'"], // Метки для каждого критерия
+                labels: ["' . $survey_titles['title_prev_prev'] . '", "' . $survey_titles['title_prev'] . '", "' . $survey_titles['title_current'] . '"], // Метки для каждого критерия
                 datasets: [
                     {
                         label: "ОВ",
@@ -1270,11 +1275,13 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         src: url('assets/fonts/Roboto-Regular.ttf') format('truetype');
         font-weight: normal;
     }
+
     @font-face {
         font-family: 'Roboto';
         src: url('assets/fonts/Roboto-Bold.ttf') format('truetype');
         font-weight: bold;
     }
+
     * {
         font-family: Roboto !important;
     }
@@ -1314,9 +1321,11 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
         text-align: center;
         justify-content: center;
     }
-    .square h1{
+
+    .square h1 {
         font-weight: bold !important;
     }
+
     .square * {
         font-family: Roboto;
         color: #2E5B9B;
