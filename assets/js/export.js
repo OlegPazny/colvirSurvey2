@@ -7,18 +7,19 @@ document.querySelectorAll('.export-to-pdf').forEach(button => {
         const accordionButton = targetElement.previousElementSibling.querySelector('.accordion-button');
         const pdfTitle = accordionButton ? accordionButton.textContent.trim() : "export";
         const formGroup = targetElement.querySelector('.form-group.card-body');
-        var isFormGroup = false;
-        let textInputs;
-        let buttonInputs;
+
+        let isFormGroup = false;
+        let textInputs = []; // Инициализируем переменные
+        let buttonInputs = [];
+        let tempTexts = []; // Переменная для временных элементов
+
         if (formGroup !== null) {
             isFormGroup = true;
             textInputs = formGroup.querySelectorAll('input[type="text"]');
             buttonInputs = formGroup.querySelectorAll('input[type="button"]');
-        }
-        console.log(isFormGroup);
-        if (isFormGroup == true) {
+
             // Создаем временные элементы
-            const tempTexts = Array.from(textInputs).map(input => {
+            tempTexts = Array.from(textInputs).map(input => {
                 const label = input.previousElementSibling;
                 const tempSpan = document.createElement('div');
                 tempSpan.textContent = input.value;
@@ -59,9 +60,7 @@ document.querySelectorAll('.export-to-pdf').forEach(button => {
             }
         })
             .then(dataUrl => {
-
                 const pdf = new jsPDF("p", "mm", "a4");
-                // Добавляем шрифт Roboto
                 pdf.setFont("Roboto", "normal");
                 pdf.setFont("Roboto", "bold");
                 const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -71,12 +70,10 @@ document.querySelectorAll('.export-to-pdf').forEach(button => {
 
                 pdf.internal.pageSize.setHeight(imgHeight);
 
-
-
                 pdf.addImage(dataUrl, "PNG", 0, 0, imgWidth, imgHeight);
                 pdf.save(`${pdfTitle}.pdf`);
 
-                if (isFormGroup == true) {
+                if (isFormGroup) {
                     // Восстанавливаем элементы
                     tempTexts.forEach(({ input, tempSpan }) => {
                         tempSpan.remove();
@@ -97,7 +94,7 @@ document.querySelectorAll('.export-to-pdf').forEach(button => {
             .catch(error => {
                 console.error("Ошибка при создании PDF:", error);
 
-                if (isFormGroup == true) {
+                if (isFormGroup) {
                     // Восстанавливаем элементы в случае ошибки
                     tempTexts.forEach(({ input, tempSpan }) => {
                         tempSpan.remove();
