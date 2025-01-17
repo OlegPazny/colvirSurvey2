@@ -1,14 +1,14 @@
 <?php
     session_start();
     if($_SESSION['loggedin']!==true){
-        header("Location: auth.php");
+        header("Location: ./auth.php");
         die();
     }
     if($_SESSION['userType']!=="admin"){
-        header("Location: index.php");
+        header("Location: ./index.php");
         die();
     }
-    require_once "assets/api/db_connect.php";
+    require_once "./assets/api/db_connect.php";
 
     $deps=mysqli_query($db, "SELECT * FROM `departments`");
     $deps=mysqli_fetch_all($deps);
@@ -63,6 +63,7 @@
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary mt-3">Сохранить</button>
+                <a href="./metrics.php"><input type="button" class="btn btn-primary mt-3" value="Анализ вовлеченности"/></a>
             </form>
         </div>
     </div>
@@ -76,5 +77,5 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
     crossorigin="anonymous"></script>
-    <script src="assets/js/admin.js"></script>
+    <script src="./assets/js/admin.js"></script>
 </html>

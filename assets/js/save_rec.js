@@ -12,7 +12,7 @@ $(document).ready(function() {
 
         // Отправить данные на сервер через AJAX
         $.ajax({
-            url: 'assets/api/save_department_rec.php',
+            url: './assets/api/save_department_rec.php',
             type: 'POST',
             data: {
                 department_ids: departmentIds,

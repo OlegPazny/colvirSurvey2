@@ -5,7 +5,7 @@ $(document).ready(function() {
         let formData = $(this).serialize();
         // Отправляем AJAX-запрос
         $.ajax({
-            url: 'assets/api/update_survey.php',
+            url: './assets/api/update_survey.php',
             type: 'POST',
             data: formData,
             success: function (response) {
@@ -24,7 +24,7 @@ $(document).ready(function() {
     $("#startNewSurvey").click(function() {
         if (confirm("Вы уверены, что хотите начать новый опрос? Это действие нельзя отменить.")) {
             // Шаг 1: Скачиваем бэкап
-            window.location.href = 'assets/api/new_survey.php?action=backup&timestamp=' + new Date().getTime();
+            window.location.href = './assets/api/new_survey.php?action=backup&timestamp=' + new Date().getTime();
     
             // Шаг 2: Сдвигаем таблицы после завершения бэкапа
             setTimeout(function() {

@@ -1,10 +1,10 @@
 <?php
 session_start();
 if ($_SESSION['userType'] !== "admin") {
-    header("Location: index.php");
+    header("Location: ./index.php");
     die();
 }
-require_once "assets/api/db_connect.php";
+require_once "./assets/api/db_connect.php";
 
 $data = mysqli_query($db, "SELECT * FROM `results`");
 $data = mysqli_fetch_all($data);
@@ -1258,6 +1258,7 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     <title>Метрики</title>
 </head>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="./assets/css/metrics_styles.css">
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -1267,70 +1268,6 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@2/dist/dom-to-image-more.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-
-<style>
-    @font-face {
-        font-family: 'Roboto';
-        src: url('assets/fonts/Roboto-Regular.ttf') format('truetype');
-        font-weight: normal;
-    }
-
-    @font-face {
-        font-family: 'Roboto';
-        src: url('assets/fonts/Roboto-Bold.ttf') format('truetype');
-        font-weight: bold;
-    }
-
-    * {
-        font-family: Roboto !important;
-    }
-
-    td,
-    tr,
-    th {
-        border-bottom: 1px solid gray;
-        border-right: 1px solid gray;
-    }
-
-    table {
-        display: none;
-        font-size: 10px;
-    }
-
-
-    .container {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-    }
-
-    .square-block {
-        display: flex;
-        flex-direction: row;
-    }
-
-    .square {
-        margin-right: 10px;
-        border: 3px solid #2E5B9B;
-        display: flex;
-        flex-direction: column;
-        width: fit-content;
-        padding: 15px;
-        align-items: center;
-        text-align: center;
-        justify-content: center;
-    }
-
-    .square h1 {
-        font-weight: bold !important;
-    }
-
-    .square * {
-        font-family: Roboto;
-        color: #2E5B9B;
-    }
-</style>
 <div class="accordion" id="accordionExample">
     <?php
     $departmentIds = [];
@@ -1403,14 +1340,14 @@ function generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $d
     $departmentNameEn = "DepInn";
     generateDashData($data, $data_prev, $data_prev_prev, $departmentIds, $departmentNameRu, $departmentNameEn, $questions, $employees, $percentages);
     ?>
+    <a href="./admin.php"><input type="button" class="btn btn-primary mt-3" value="Админ-панель"/></a>
 </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-<script type="module" src="assets/fonts/Roboto-normal.js"></script>
-<script type="module" src="assets/js/export.js"></script>
+<script type="module" src="./assets/fonts/Roboto-normal.js"></script>
+<script type="module" src="./assets/js/export.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/print-js/1.6.0/print.js" integrity="sha512-/fgTphwXa3lqAhN+I8gG8AvuaTErm1YxpUjbdCvwfTMyv8UZnFyId7ft5736xQ6CyQN4Nzr21lBuWWA9RTCXCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<!-- <script type="module" src="assets/js/export2.js"></script> -->
-<script src="assets/js/save_rec.js"></script>
+<script src="./assets/js/save_rec.js"></script>
 
 </html>

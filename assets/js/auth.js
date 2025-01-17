@@ -6,7 +6,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
     const password = document.getElementById('password').value;
 
     try {
-        const response = await fetch('assets/api/auth_script.php', {
+        const response = await fetch('./assets/api/auth_script.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

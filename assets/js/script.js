@@ -19,7 +19,7 @@ $(document).ready(function() {
         var formData = $(this).serialize();
 
         $.ajax({
-            url: 'assets/api/submit.php', // Указываем путь к PHP-скрипту, который будет сохранять данные
+            url: './assets/api/submit.php', // Указываем путь к PHP-скрипту, который будет сохранять данные
             type: 'POST',
             data: formData,
             success: function(response) {

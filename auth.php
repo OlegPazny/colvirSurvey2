@@ -39,5 +39,5 @@
         </div>
     </div>
 </body>
-<script src="assets/js/auth.js"></script>
+<script src="./assets/js/auth.js"></script>
 </html>
