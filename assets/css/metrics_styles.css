@@ -58,3 +58,13 @@ table {
     font-family: Roboto;
     color: #2E5B9B;
 }
+.questionGraph{
+    width: 100%; /* Растягивает по ширине */
+    height: auto; /* Позволяет автоматическую высоту */
+    min-height: 1800px; /* Установите минимальную высоту */
+}
+.differenceGraph {
+    width: 100%; /* Растягивает по ширине */
+    height: auto; /* Позволяет автоматическую высоту */
+    min-height: 1200px; /* Установите минимальную высоту */
+}

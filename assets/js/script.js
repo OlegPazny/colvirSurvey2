@@ -1,7 +1,14 @@
 $(document).ready(function() {
     // Ограничение на длину комментария
     const MAX_COMMENT_LENGTH = 65535;  // Максимальный размер поля TEXT в MySQL
+    const SURVEY_KEY = 'survey_submitted';
 
+    if (localStorage.getItem(SURVEY_KEY)) {
+        alert("Вы уже отправили этот опрос.");
+        $('#surveyForm').hide(); // Скрываем форму, если опрос уже был отправлен
+        $('.end').show();
+        return;
+    }
     // Отправка данных формы
     $('#surveyForm').submit(function(event) {
         event.preventDefault(); // Предотвращаем стандартную отправку формы
@@ -23,13 +30,12 @@ $(document).ready(function() {
             type: 'POST',
             data: formData,
             success: function(response) {
+                localStorage.setItem(SURVEY_KEY, 'true');
                 alert(response.message); // Показываем сообщение об успешной отправке
-
                 // Очищаем форму после успешной отправки
                 $('#surveyForm')[0].reset();  // Очистка всех полей формы
-
-                // Если вам нужно очистить только комментарий
-                // $('#comment').val(''); // Для очистки только поля комментария
+                $('#surveyForm').hide();
+                $('.end').show();
             },
             error: function(xhr, status, error) {
                 // Обработка ошибок

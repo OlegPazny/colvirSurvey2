@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 if($_SESSION['loggedin']!==true){
     header("Location: ./auth.php");
     die();
@@ -21,6 +22,9 @@ require_once "./assets/api/survey_functions.php";
 
 <body>
     <div class="container mt-5">
+        <div class="survey-section end">
+            <div class="survey-header">Спасибо за участие в опросе!</div>
+        </div>
         <form id="surveyForm" method="POST">
             <div class="survey-section">
                 <div class="survey-header">Улучшаем нашу работу вместе! 2025</div>

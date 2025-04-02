@@ -14,7 +14,9 @@
 body {
     background-color: #f7f7f7;
 }
-
+.end{
+    display: none;
+}
 .survey-section {
     margin-bottom: 2rem;
     background-color: #fff;
